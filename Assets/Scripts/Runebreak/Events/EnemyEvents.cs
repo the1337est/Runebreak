@@ -25,6 +25,11 @@ public class EnemySpawnEvent : IGameEvent
     {
         Enemy = enemy;
     }
+
+    public override string ToString()
+    {
+        return $"{Enemy.name} spawned";
+    }
 }
 
 public class EnemyAttackEvent : IGameEvent

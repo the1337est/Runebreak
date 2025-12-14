@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -9,15 +10,10 @@ using UnityEngine.UI;
 public class UIManager : MonoBehaviour
 {
     [Header("Canvases")] 
-    [SerializeField] private GameObject _mainMenuCanvas;
-    [SerializeField] private GameObject _pauseMenuCanvas;
     [SerializeField] private GameObject _gameplayCanvas;
+    [SerializeField] private GameObject _pauseMenuCanvas;
     
-    [Header("Main Menu")] 
-    [SerializeField] private Button _startGameButton;
-    [SerializeField] private Button _mainMenusettingsButton;
-    
-    [Header("Gameplay")]
+    [Header("Gameplay UI Components")]
     [SerializeField] private GameObject _gameplayContainer;
     [SerializeField] private GameObject _initSetupContainer;
     [SerializeField] private GameObject _waveSetupContainer;
@@ -28,7 +24,7 @@ public class UIManager : MonoBehaviour
 
     [SerializeField] private Button _returnToMenuButton;
     
-    [Header("Pause Menu")]
+    [Header("Pause Menu UI Components")]
     [SerializeField] private GameObject _pauseMenuContainer;
     [SerializeField] private Button _resumeButton;
     
@@ -49,7 +45,6 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        _startGameButton.onClick.AddListener(HandleStartButtonClicked);
         _nextWaveButton.onClick.AddListener(HandleNextWaveClicked);
         _returnToMenuButton.onClick.AddListener(HandleReturnToMenuClicked);
         
@@ -62,7 +57,6 @@ public class UIManager : MonoBehaviour
 
     private void OnDisable()
     {
-        _startGameButton.onClick.RemoveListener(HandleStartButtonClicked);
         _nextWaveButton.onClick.RemoveListener(HandleNextWaveClicked);
         _returnToMenuButton.onClick.RemoveListener(HandleReturnToMenuClicked);
         
@@ -73,18 +67,9 @@ public class UIManager : MonoBehaviour
         EventBus.Unsubscribe<PlayerDeathEvent>(HandlePlayerDeath);
     }
 
-    private void HandleStartButtonClicked()
-    {
-        _mainMenuCanvas.SetActive(false);
-        _gameplayContainer.SetActive(true);
-        EventBus.Publish(new StartGameClickEvent());
-    }
-
     private void HandleReturnToMenuClicked()
     {
-        _mainMenuCanvas.SetActive(true);
-        _gameplayCanvas.SetActive(false);
-        EventBus.Publish(new ReturnToMenuEvent());
+        SceneManager.LoadScene("Menu");
     }
     
     private void HandleNextWaveClicked()

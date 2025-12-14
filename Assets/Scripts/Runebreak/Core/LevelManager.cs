@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -58,7 +60,7 @@ public class LevelManager : MonoBehaviour
     
     private void OnEnable()
     {
-        EventBus.Subscribe<StartGameClickEvent>(HandleStartGameClick);
+        EventBus.Subscribe<GameSceneEnterEvent>(HandleGameSceneEnter);
         EventBus.Subscribe<NextWaveClickEvent>(HandleNextWaveClick);
         EventBus.Subscribe<EnemySpawnEvent>(HandleEnemySpawn);
         EventBus.Subscribe<EnemyDeathEvent>(HandleEnemyDeath);
@@ -68,7 +70,7 @@ public class LevelManager : MonoBehaviour
     
     private void OnDisable()
     {
-        EventBus.Unsubscribe<StartGameClickEvent>(HandleStartGameClick);
+        EventBus.Unsubscribe<GameSceneEnterEvent>(HandleGameSceneEnter);
         EventBus.Unsubscribe<NextWaveClickEvent>(HandleNextWaveClick);
         EventBus.Unsubscribe<EnemySpawnEvent>(HandleEnemySpawn);
         EventBus.Unsubscribe<EnemyDeathEvent>(HandleEnemyDeath);
@@ -76,7 +78,7 @@ public class LevelManager : MonoBehaviour
         EventBus.Unsubscribe<PlayerDeathEvent>(HandlePlayerDeath);
     }
     
-    private void HandleStartGameClick(StartGameClickEvent obj)
+    private void HandleGameSceneEnter(GameSceneEnterEvent obj)
     {
         //generate level idk
         _waveIndex = -1; //reset wave index
@@ -170,19 +172,36 @@ public class LevelManager : MonoBehaviour
         ProcessWaveUpdate();
     }
 
-    private void SpawnEnemy()
+    private CancellationTokenSource _cts;
+    
+    private async void SpawnEnemy()
     {
         var count = GameMath.GetBiasedInt(_currentWave.MinSpawnCount, _currentWave.MaxSpawnCount, _currentWave.SpawnCountBias);
-        
+        _cts = new CancellationTokenSource();   
         for (int i = 0; i < count; i++)
         {
-            var prefab = GameMath.GetWeightedPrefab(_waveEnemiesCache);
-            var position = new Vector2(Random.Range(-_worldSize.x / 2f, _worldSize.x / 2f),
-            Random.Range(-_worldSize.y / 2f, _worldSize.y / 2f));
+            try
+            {
+                var prefab = GameMath.GetWeightedPrefab(_waveEnemiesCache);
+                var position = new Vector2(Random.Range(-_worldSize.x / 2f, _worldSize.x / 2f),
+                    Random.Range(-_worldSize.y / 2f, _worldSize.y / 2f));
 
-            var spawn = Instantiate(_spawnPrefab, position, Quaternion.identity);
-            spawn.Init(prefab, position);
+                _cts.Token.ThrowIfCancellationRequested();
+                if (!this || !gameObject.activeInHierarchy) return;
+
+                var spawn = Instantiate(_spawnPrefab, position, Quaternion.identity);
+                spawn.Init(prefab, position);
+                var delay = Random.Range(50, 250);
+                await Task.Delay(delay, _cts.Token);
+            }
+            catch (TaskCanceledException)
+            {
+                
+            }
         }
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
     }
 
     private void HandleEnemySpawn(EnemySpawnEvent eventData)
@@ -207,5 +226,10 @@ public class LevelManager : MonoBehaviour
     public float GetClampedX(float x)
     {
         return Mathf.Clamp(x, -_worldSize.x/2f, _worldSize.x/2f);
+    }
+
+    private void OnDestroy()
+    {
+        _cts?.Cancel();
     }
 }

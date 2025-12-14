@@ -96,6 +96,7 @@ public class Player : MonoBehaviour
         _stats.Set(StatType.MaxHP, _maxHealth);
         _stats.Set(StatType.HP, _currentHealth);
         _spriteRenderer.color = Color.white;
+        transform.position = Vector2.zero;
     }
 
     private void HandleWaveEnd(WaveEndEvent eventData)
@@ -245,6 +246,11 @@ public class Player : MonoBehaviour
         _spriteRenderer.DOColor(Color.red, 0.2f);
         SetPlayerState(PlayerState.Dead);
         EventBus.Publish(new PlayerDeathEvent());
+    }
+
+    private void OnDestroy()
+    {
+        _inputActions.Disable();
     }
 }
 
