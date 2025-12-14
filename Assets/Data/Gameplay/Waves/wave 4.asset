@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec3fa588776fb8a4995c13678e3abdad, type: 3}
+  m_Name: wave 4
+  m_EditorClassIdentifier: Assembly-CSharp::WaveData
+  Time: 30
+  SpawnInterval: 0.95
+  MinSpawnCount: 3
+  MaxSpawnCount: 6
+  SpawnCountBias: 0.45
+  EnemyProbilities:
+  - Enemy: {fileID: 628972687785303700, guid: 3b90be2e199ae5b41bc33dd7fc4ea64e, type: 3}
+    Probability: 70
+  - Enemy: {fileID: 4138040129216394171, guid: 82799433814c2274fbbb1c8259ad3035, type: 3}
+    Probability: 30

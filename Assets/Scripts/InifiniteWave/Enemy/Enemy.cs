@@ -1,0 +1,156 @@
+using System;
+using System.Threading.Tasks;
+using DG.Tweening;
+using UnityEngine;
+
+public class Enemy : MonoBehaviour
+{
+    protected Player Target { get; private set; }
+
+    [Header("Stats")]
+    [SerializeField] protected float _maxHealth = 10;
+
+    [Header("Reward")]
+    [SerializeField] protected int _coinsOnDeath = 1;
+
+    [SerializeField] protected float _moveSpeed = 4f;
+    [SerializeField] protected float _separation = 0.25f;
+    [SerializeField] protected float _attackInterval = 1f;
+    [SerializeField] protected float _attackRange;
+    [SerializeField] protected float _damage;
+    
+    private float _currentHealth;
+    private float _nextAttackTime;
+
+    protected float _attackRangeSqr;
+
+    public bool IsAlive;
+
+    private bool _waveActive;
+    
+    private SpriteRenderer _spriteRenderer;
+
+    private bool _movementLock = false;
+    public void Init()
+    {
+        _currentHealth = _maxHealth;
+        Target = Player.Instance;
+        _nextAttackTime = Time.time + _attackInterval;
+        IsAlive = true;
+        _attackRangeSqr = _attackRange * _attackRange;
+        _movementLock = true;
+        UnblockMovement();
+    }
+
+    private async void UnblockMovement()
+    {
+        await Task.Delay(500);
+        _movementLock = false;
+    }
+
+    private void Awake()
+    {
+        if (_currentHealth <= 0)
+            _currentHealth = _maxHealth;
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
+    private void Update()
+    {
+        MovementUpdate();
+        AttackUpdate();
+    }
+
+    private void MovementUpdate()
+    {
+        if (!CanMove()) return;
+        transform.position = Vector3.MoveTowards(
+            transform.position + GetSeparation(),
+            Target.transform.position,
+            Time.deltaTime * _moveSpeed
+        );
+        var p = transform.position;
+        transform.position = new Vector3(LevelManager.Instance.GetClampedX(p.x), LevelManager.Instance.GetClampedY(p.y), p.z);
+    }
+
+    private bool CanMove()
+    {
+        if (!IsAlive) return false;
+        if (!LevelManager.Instance.IsWaveActive) return false;
+        if (_movementLock) return false;
+        return true;
+    }
+    
+    private void AttackUpdate()
+    {
+        if (!IsAlive) return;
+        if (!(Time.time >= _nextAttackTime)) return;
+        if (!CanAttack()) return;
+        
+        Attack();
+        UpdateNextAttackTime();
+    }
+
+    protected virtual bool CanAttack()
+    {
+        return true;
+    }
+
+    //to be called when an attack is processed from Enemy implementation
+    protected void UpdateNextAttackTime()
+    {
+        _nextAttackTime = Time.time + _attackInterval;
+    }
+
+    protected virtual void Attack()
+    {
+        //override in enemy implementation
+    }
+
+    private Vector3 GetSeparation()
+    {
+        Vector3 push = Vector3.zero;
+
+        foreach (var other in LevelManager.Instance.AliveEnemies)
+        {
+            if (other == this) continue;
+            float d = Vector3.Distance(transform.position, other.transform.position);
+
+            if (d < _separation)
+                push += (transform.position - other.transform.position).normalized * (_separation - d);
+        }
+
+        return push;
+    }
+    
+    // Call this from your damage system / bullets / player attacks
+    public void TakeDamage(float amount)
+    {
+        if (_currentHealth <= 0) return;
+
+        _currentHealth -= amount;
+        if (_currentHealth <= 0)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        //publish event
+        EventBus.Publish(new EnemyDeathEvent(this, transform.position, _coinsOnDeath));
+        PlayDeathSequence();
+    }
+
+    private void PlayDeathSequence()
+    {
+        IsAlive = false;
+        var scale = transform.localScale;
+        _spriteRenderer.DOColor(Color.red, 0.1f).SetEase(Ease.InOutBack);
+        
+        transform.DOScale(Vector3.zero, 0.4f).SetEase(Ease.InOutBack).OnComplete(()=>
+        {
+            Destroy(gameObject);
+        });
+    }
+}
