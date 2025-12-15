@@ -6,76 +6,49 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
-public class Shop : MonoBehaviour
+public class Shop : Interactable
 {
-    [SerializeField] private List<UpgradeSO> _allItems;
-    [SerializeField] private float _activationRange = 4f;
-
-    private Transform _target;
-
-    [SerializeField] private GameObject _enabledShop;
-    [SerializeField] private GameObject _disabledShop;
+    [SerializeField] private int _itemCount = 4;
     [SerializeField] private GameObject _shopUI;
-
-    private bool _shopIsOpen;
-    private bool _withinRange;
     
-    private InputActions _inputActions => GameManager.Instance.InputActions;
-    private InputAction _interactInput => _inputActions.Player.Interact;
-
-
-    private int _itemCount = 4;
+    [Header("Items")]
+    [SerializeField] private List<UpgradeSO> _allItems;
+    
     private List<UpgradeSO> _activeItems = new();
-    
     private List<UpgradeSO> _commonItems = new();
     private List<UpgradeSO> _uncommonItems = new();
     private List<UpgradeSO> _rareItems = new();
     private List<UpgradeSO> _epicItems = new();
     private List<UpgradeSO> _legendaryItems = new();
     
-    private void Awake()
+    private void Start()
     {
         ProcessItems();
-        _target = Player.Instance.transform;
-    }
-    
-    private void GenerateShopItems()
-    {
-        _activeItems.Clear();
-        for (int i = 0; i < 3; i++)
-        {
-            var item = GetRandomItem();
-            _activeItems.Add(item);
-        }
     }
 
-    private void OnEnable()
+    protected override void OnEnable()
     {
+        base.OnEnable();
         EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Subscribe<WaveStartEvent>(HandleWaveStart);
-        
-        _interactInput.performed += HandleInteract;
     }
     
-    private void OnDisable()
+    protected override void OnDisable()
     {
+        base.OnDisable();
         EventBus.Unsubscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Unsubscribe<WaveStartEvent>(HandleWaveStart);
-        
-        _interactInput.performed -= HandleInteract;
     }
 
     private void HandleWaveEnd(WaveEndEvent obj)
     {
-        _shopIsOpen = true;
+        InteractionAllowed = true;
     }
     
     private void HandleWaveStart(WaveStartEvent obj)
     {
-        _shopIsOpen = false;
+        InteractionAllowed = false;
     }
-
-    
     
     private void ProcessItems()
     {
@@ -122,28 +95,8 @@ public class Shop : MonoBehaviour
         return null;
     }
     
-    private void Update()
+    public override void Interact()
     {
-        if (!_shopIsOpen) return;
-        ProximityUpdate();
-    }
-    
-    private void ProximityUpdate()
-    {
-        var pos = transform.position;
-        var toTarget = _target.position - pos;
-        float dist = toTarget.magnitude;
-        
-        _withinRange = dist <= _activationRange;
-        
-        _enabledShop.SetActive(_withinRange);
-        _disabledShop.SetActive(!_withinRange);
-    }
-
-    private void HandleInteract(InputAction.CallbackContext ctx)
-    {
-        Debug.Log("Performed");
-        if (!_withinRange) return;
         FetchShopItems();
     }
 
