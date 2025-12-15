@@ -1,24 +1,23 @@
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class PlayerDeathEvent : IGameEvent { }
 
 public class PlayerStatChangeEvent : IGameEvent
 {
-    public StatType Stat;
-    public StatChangeType ChangeType;
-
-    public float Value;
+    public StatChange Change;
+    public StatType Stat => Change.Stat;
+    public StatChangeType Type => Change.Type;
+    public float Amount => Change.Amount;
     
-    public PlayerStatChangeEvent(StatType stat, float value, StatChangeType changeType = StatChangeType.Flat)
+    public PlayerStatChangeEvent(StatChange change)
     {
-        Stat = stat;
-        ChangeType = changeType;
-        Value = value;
+        Change = change;
     }
 
     public override string ToString()
     {
-        return $"{Stat} {ChangeType} {Value}";
+        return $"{Change.Stat} {Change.Type} {Change.Amount}";
     }
 }
 

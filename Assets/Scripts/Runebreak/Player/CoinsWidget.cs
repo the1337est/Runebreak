@@ -24,8 +24,8 @@ public class CoinsWidget : MonoBehaviour
 
     private void HandlePlayerCoinChange(PlayerStatChangeEvent eventData)
     {
-        if (eventData.Stat != StatType.Coins) return;
-        SetCoinsText(eventData.Value);
+        if (eventData.Change.Stat != StatType.Coins) return;
+        SetCoinsText(eventData.Amount);
     }
 
     private void SetCoinsText(float value)

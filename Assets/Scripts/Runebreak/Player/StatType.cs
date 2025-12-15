@@ -8,9 +8,16 @@ public enum StatType
     MaxHP,
     Speed,
     AttackSpeed,
+    Damage,
     Armour,
-    Collecting,
+    Dodge,
+    HPRegen,
+    LifeSteal,
+    Collect,
+    CollectRadius,
+    DamageOnCollect,
     UnopenedBox,
+    
 }
 
 public enum StatChangeType

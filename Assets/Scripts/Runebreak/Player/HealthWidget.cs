@@ -32,11 +32,11 @@ public class HealthWidget : MonoBehaviour
     {
         if (eventData.Stat == StatType.HP)
         {
-            _hpCache = eventData.Value;
+            _hpCache = eventData.Amount;
         }
         else if (eventData.Stat == StatType.MaxHP)
         {
-            _maxHPCache = eventData.Value;
+            _maxHPCache = eventData.Amount;
         }
         else
         {

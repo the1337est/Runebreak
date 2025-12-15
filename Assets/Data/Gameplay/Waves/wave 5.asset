@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec3fa588776fb8a4995c13678e3abdad, type: 3}
   m_Name: wave 5
   m_EditorClassIdentifier: Assembly-CSharp::WaveData
-  Time: 35
+  Time: 40
   SpawnInterval: 0.85
   MinSpawnCount: 4
   MaxSpawnCount: 7

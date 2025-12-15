@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
 
     private Vector2 _movement;
     private bool _lookingRight = true;
-    private SpriteRenderer _spriteRenderer;
+    [SerializeField] private SpriteRenderer _spriteRenderer;
     
     public Vector2 Position => transform.position;
 
@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     private List<PlayerBullet> _availableBullets;
     
     [SerializeField] private PlayerBullet _bulletPrefab;
+    [SerializeField] private Transform _bulletOrigin;
 
     [SerializeField] private float _range = 5f;
     [SerializeField] private float _attackInterval = 1f;
@@ -43,7 +44,6 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        _spriteRenderer = GetComponent<SpriteRenderer>();
         _inputActions = new InputActions();
         _inputActions.Enable();
         _bullets = new List<PlayerBullet>();
@@ -150,8 +150,8 @@ public class Player : MonoBehaviour
                 bullet = Instantiate(_bulletPrefab, transform.position, Quaternion.identity);
                 _bullets.Add(bullet);
             }
-            bullet.transform.position = transform.position;
-            bullet.Fire(bestEnemy.transform.position - transform.position, _projectileSpeed, 10f, _range);
+            bullet.transform.position = _bulletOrigin.position;
+            bullet.Fire(bestEnemy.transform.position - _bulletOrigin.position, _projectileSpeed, 10f, _range);
         }
     }
 
@@ -162,16 +162,16 @@ public class Player : MonoBehaviour
         var input = _inputActions.Player.Move.ReadValue<Vector2>();
         _movement = input.normalized;
 
-        if (_lookingRight && _movement.x < 0f)
-        {
-            _lookingRight = false;
-            _spriteRenderer.flipX = true;
-        }
-        else if(!_lookingRight && _movement.x > 0f)
-        {
-            _lookingRight = true;
-            _spriteRenderer.flipX = false;
-        }
+        // if (_lookingRight && _movement.x < 0f)
+        // {
+        //     _lookingRight = false;
+        //     _spriteRenderer.flipX = true;
+        // }
+        // else if(!_lookingRight && _movement.x > 0f)
+        // {
+        //     _lookingRight = true;
+        //     _spriteRenderer.flipX = false;
+        // }
         
         transform.Translate(_movement * _moveSpeed * Time.deltaTime);
         var p = transform.position;

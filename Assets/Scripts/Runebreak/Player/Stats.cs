@@ -15,15 +15,15 @@ public class Stats
     public void Set(StatType stat, float value)
     {
         _base[stat] = value;
-        EventBus.Publish(new PlayerStatChangeEvent(stat, value));
+        EventBus.Publish(new PlayerStatChangeEvent(new StatChange(stat, value)));
     }
 
     public void Update(PlayerStatChangeEvent change)
     {
-        switch (change.ChangeType)
+        switch (change.Type)
         {
             case StatChangeType.Flat:
-                Set(change.Stat, change.Value); 
+                Set(change.Stat, change.Amount); 
                 break;
             
             case StatChangeType.Percent:
