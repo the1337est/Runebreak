@@ -3,6 +3,8 @@ using UnityEngine.Rendering;
 
 public class PlayerDeathEvent : IGameEvent { }
 
+public class PlayerHitEvent : IGameEvent { }
+
 public class PlayerStatChangeEvent : IGameEvent
 {
     public StatChange Change;

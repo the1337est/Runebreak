@@ -14,4 +14,9 @@ public class StatChange
         Type = type;
         Amount = amount;
     }
+
+    public override string ToString()
+    {
+        return $"Gain <color=green>{Amount:N0}</color> {Stat}";
+    }
 }

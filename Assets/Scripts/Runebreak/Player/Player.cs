@@ -8,7 +8,7 @@ using UnityEngine;
 [DefaultExecutionOrder(-10)]
 public class Player : MonoBehaviour
 {
-    private InputActions _inputActions;
+    private InputActions _inputActions => GameManager.Instance.InputActions;
 
     [SerializeField] private float _moveSpeed;
 
@@ -44,8 +44,6 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-        _inputActions = new InputActions();
-        _inputActions.Enable();
         _bullets = new List<PlayerBullet>();
         _availableBullets = new List<PlayerBullet>();
         State = PlayerState.Menu;
@@ -101,7 +99,7 @@ public class Player : MonoBehaviour
 
     private void HandleWaveEnd(WaveEndEvent eventData)
     {
-        State = PlayerState.Menu;
+        State = PlayerState.Shopping;
     }
     
     private void HandleEnemyAttack(EnemyAttackEvent eventData)
@@ -117,7 +115,7 @@ public class Player : MonoBehaviour
 
     private bool CanControl()
     {
-        return State == PlayerState.Idle || State == PlayerState.Moving;
+        return State == PlayerState.Idle || State == PlayerState.Moving || State == PlayerState.Shopping;
     }
 
     private void Attack()
@@ -239,6 +237,7 @@ public class Player : MonoBehaviour
             Die();
         }
         _stats.Set(StatType.HP, Mathf.Clamp(hp, 0, _stats.Get(StatType.MaxHP)));
+        EventBus.Publish(new PlayerHitEvent());
     }
 
     private void Die()
@@ -260,5 +259,6 @@ public enum PlayerState
     Menu,
     Idle,
     Moving,
-    Dead
+    Dead,
+    Shopping
 }

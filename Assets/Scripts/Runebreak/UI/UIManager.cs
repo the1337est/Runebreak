@@ -86,7 +86,7 @@ public class UIManager : MonoBehaviour
     private void HandleWaveEnd(WaveEndEvent eventData)
     {
         ResetText();
-        _waveSetupContainer.SetActive(true);
+        // _waveSetupContainer.SetActive(true);
     }
 
     private void HandleTimerUpdate(TimerUpdateEvent eventData)

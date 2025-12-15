@@ -55,7 +55,7 @@ public class LevelManager : MonoBehaviour
         }
         Instance = this;
         _background.drawMode = SpriteDrawMode.Tiled;
-        _background.size = new Vector2(_worldSize.x+1, _worldSize.y+1);
+        _background.size = new Vector2(_worldSize.x, _worldSize.y);
     }
     
     private void OnEnable()
@@ -194,7 +194,7 @@ public class LevelManager : MonoBehaviour
                 var delay = Random.Range(50, 250);
                 await Task.Delay(delay, _cts.Token);
             }
-            catch (TaskCanceledException)
+            catch (OperationCanceledException)
             {
                 
             }

@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
 {
 
@@ -9,6 +10,8 @@ public class GameManager : MonoBehaviour
     private const string _gameSceneName = "Game";
     
     public static GameManager Instance { get; private set; }
+
+    public InputActions InputActions { get; private set; }
 
     private void Awake()
     {
@@ -22,6 +25,9 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        
+        InputActions = new InputActions();
+        InputActions.Enable();
     }
 
     private void OnEnable()
@@ -45,5 +51,10 @@ public class GameManager : MonoBehaviour
                 EventBus.Publish(new GameSceneEnterEvent());
                 break;
         }
+    }
+
+    private void OnDestroy()
+    {
+        InputActions.Disable();
     }
 }

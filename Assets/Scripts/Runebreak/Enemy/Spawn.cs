@@ -31,7 +31,7 @@ public class Spawn : MonoBehaviour
             EventBus.Publish(new EnemySpawnEvent(e));
             Destroy(gameObject);
         }
-        catch (TaskCanceledException)
+        catch (OperationCanceledException)
         {
             
         }
