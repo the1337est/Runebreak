@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using UnityEngine;
@@ -22,6 +23,7 @@ public class ShopUI : MonoBehaviour
 
     private void HandleShopItemUpdate(ShopItemUpdateEvent eventData)
     {
+        Debug.Log("Shop Item Update received");
         var items = eventData.Items;
         if (_shopCards.Count < items.Count)
         {
@@ -45,6 +47,8 @@ public class ShopUI : MonoBehaviour
                 _shopCards.RemoveAt(i);
             }
         }
+
+        StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
     }
 
     public void Open()
@@ -53,15 +57,25 @@ public class ShopUI : MonoBehaviour
         Debug.Log(_shopCards.Count);
         if (_shopCards.Count > 0)
         {
-            _shopCards[0].Select();
+            StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
         }
-
-        var selected = EventSystem.current.currentSelectedGameObject;
-        Debug.Log($"{selected}");
     }
 
-    public void Select()
+    private IEnumerator SelectGameObjectNextFrame(ShopCard card)
     {
-        
+        yield return null;
+        if (card != null)
+        {
+            card.Select();
+        }
+    }
+
+    public void SyncCards()
+    {
+        var coins = Player.Instance.Stats.Get(StatType.Coins);
+        foreach (var card in _shopCards)
+        {
+            card.UpdateInteractability(coins);
+        }
     }
 }

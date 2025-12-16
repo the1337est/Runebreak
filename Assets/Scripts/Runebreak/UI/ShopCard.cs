@@ -17,7 +17,19 @@ public class ShopCard : MonoBehaviour
 
     private void OnEnable()
     {
-        // _buyButton.onClick.AddListener();
+        _buyButton.onClick.AddListener(HandleBuyClick);
+    }
+    
+    private void OnDisable()
+    {
+        _buyButton.onClick.RemoveListener(HandleBuyClick);
+    }
+
+    private void HandleBuyClick()
+    {
+        Debug.Log($"Buy clicked: {name} / {_item.Name}");
+        if(!_buyButton.interactable) return;
+        EventBus.Publish(new ShopBuyEvent(_item));
     }
 
     public void Set(UpgradeSO item)
@@ -27,6 +39,11 @@ public class ShopCard : MonoBehaviour
         _subtitleText.text = item.Rarity.ToString();
         _descriptionText.text = GetDescription();
         _costText.text = item.BaseCost.ToString();
+    }
+
+    public void UpdateInteractability(float coins)
+    {
+        _buyButton.interactable = coins <= _item.BaseCost;
     }
 
     private string GetDescription()

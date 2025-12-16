@@ -57,8 +57,17 @@ public class Player : MonoBehaviour
         
         EventBus.Subscribe<EnemyAttackEvent>(HandleEnemyAttack);
         EventBus.Subscribe<PickupEvent>(HandlePickupEvent);
+        
+        EventBus.Subscribe<ShopBuyEvent>(HandleShopBuyEvent);
     }
-    
+
+    private void HandleShopBuyEvent(ShopBuyEvent eventData)
+    {
+        var coins = _stats.Get(StatType.Coins);
+        coins -= eventData.Item.BaseCost;
+        _stats.Set(StatType.Coins, coins);
+    }
+
     private void OnDisable()
     {
         EventBus.Unsubscribe<WaveStartEvent>(HandleWaveStart);
@@ -159,17 +168,6 @@ public class Player : MonoBehaviour
         
         var input = _inputActions.Player.Move.ReadValue<Vector2>();
         _movement = input.normalized;
-
-        // if (_lookingRight && _movement.x < 0f)
-        // {
-        //     _lookingRight = false;
-        //     _spriteRenderer.flipX = true;
-        // }
-        // else if(!_lookingRight && _movement.x > 0f)
-        // {
-        //     _lookingRight = true;
-        //     _spriteRenderer.flipX = false;
-        // }
         
         transform.Translate(_movement * _moveSpeed * Time.deltaTime);
         var p = transform.position;

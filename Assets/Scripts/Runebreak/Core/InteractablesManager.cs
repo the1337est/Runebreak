@@ -64,13 +64,12 @@ public class InteractablesManager : MonoBehaviour
     private void HandleInteract(InputAction.CallbackContext context)
     {
         if (_bestInteractable == null) return;
-        GameManager.Instance.EnableInputActions(ActionMapType.UI);
         _bestInteractable.Interact();
+        GameManager.Instance.EnableInputActions(ActionMapType.UI);
     }
     
     private void HandleUISelect(InputAction.CallbackContext context)
     {
-        Debug.Log("HandleUISelect");
         if (_bestInteractable == null) return;
         _bestInteractable.UISelect();
     }

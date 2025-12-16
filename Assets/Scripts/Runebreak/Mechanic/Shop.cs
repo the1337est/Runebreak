@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEditor.Search;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
@@ -31,6 +32,8 @@ public class Shop : Interactable
         base.OnEnable();
         EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Subscribe<WaveStartEvent>(HandleWaveStart);
+        
+        EventBus.Subscribe<PlayerStatChangeEvent>(HandleStatChange);
     }
     
     protected override void OnDisable()
@@ -50,6 +53,12 @@ public class Shop : Interactable
         InteractionAllowed = false;
     }
     
+    private void HandleStatChange(PlayerStatChangeEvent eventData)
+    {
+        if (eventData.Change.Stat != StatType.Coins) return;
+        _shopUI.SyncCards();
+    }
+
     private void ProcessItems()
     {
         foreach (var item in _allItems)
@@ -97,20 +106,14 @@ public class Shop : Interactable
     
     public override void Interact()
     {
-        OpenShop();
-    }
-
-    public override void UISelect()
-    {
-        Debug.Log("Nothing to select right now");
-        if (!IsActive) return;
-        _shopUI.Select();
+        OpenShop(); 
     }
     
     public override void UIBack()
     {
         if(!IsActive) return;
         IsActive = false;
+        EventSystem.current.SetSelectedGameObject(null);
         _shopUI.gameObject.SetActive(false);
     }
     

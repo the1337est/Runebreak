@@ -8,7 +8,6 @@ public class ShopCloseEvent : IGameEvent { }
 public class ShopBuyEvent : IGameEvent
 {
     public UpgradeSO Item;
-    public int Price;
 
     public ShopBuyEvent(UpgradeSO item)
     {
