@@ -1,29 +1,58 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
+using TMPro;
+using UnityEditor.Overlays;
 using UnityEngine;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ShopUI : MonoBehaviour
 {
     [SerializeField] private ShopCard _shopCardPrefab;
     [SerializeField] private Transform _cardContainer;
+    [SerializeField] private Button _rerollButton;
     
     private List<ShopCard> _shopCards = new ();
     
+    private GridLayoutGroup _gridLayoutGroup;
+    
+    [SerializeField] private TextMeshProUGUI _rerollCostText;
+
+    private void Awake()
+    {
+        _gridLayoutGroup = GetComponentInChildren<GridLayoutGroup>();
+    }
+
     private void OnEnable()
     {
+        _rerollButton.onClick.AddListener(HandleRerollClick);
         EventBus.Subscribe<ShopItemUpdateEvent>(HandleShopItemUpdate);
+        EventBus.Subscribe<ShopCardDisposeEvent>(HandleShopCardDispose);
     }
-    
+
+
     private void OnDisable()
     {
-        EventBus.Subscribe<ShopItemUpdateEvent>(HandleShopItemUpdate);
+        EventBus.Unsubscribe<ShopItemUpdateEvent>(HandleShopItemUpdate);
+        EventBus.Unsubscribe<ShopCardDisposeEvent>(HandleShopCardDispose);
+    }
+    
+    private void HandleRerollClick()
+    {
+        EventBus.Publish(new ShopRerollRequestEvent());
+    }
+
+    private void HandleShopCardDispose(ShopCardDisposeEvent eventdata)
+    {
+        if (eventdata.Card != null && _shopCards.Contains(eventdata.Card))
+        {
+            _shopCards.Remove(eventdata.Card);
+            Destroy(eventdata.Card.gameObject);
+        }
     }
 
     private void HandleShopItemUpdate(ShopItemUpdateEvent eventData)
     {
-        Debug.Log("Shop Item Update received");
         var items = eventData.Items;
         if (_shopCards.Count < items.Count)
         {
@@ -48,6 +77,8 @@ public class ShopUI : MonoBehaviour
             }
         }
 
+        _gridLayoutGroup.enabled = true;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(_gridLayoutGroup.transform as RectTransform);
         StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
     }
 
@@ -68,6 +99,18 @@ public class ShopUI : MonoBehaviour
         {
             card.Select();
         }
+
+        if (_gridLayoutGroup)
+        {
+            _gridLayoutGroup.enabled = false;
+        }
+    }
+
+    public void SetRerollCost(int cost)
+    {
+        var coins = Player.Instance.Stats.Get(StatType.Coins);
+        _rerollButton.interactable = coins >= cost;
+        _rerollCostText.text = cost.ToString("N0");
     }
 
     public void SyncCards()

@@ -54,26 +54,20 @@ public class Player : MonoBehaviour
     {
         EventBus.Subscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
-        
         EventBus.Subscribe<EnemyAttackEvent>(HandleEnemyAttack);
         EventBus.Subscribe<PickupEvent>(HandlePickupEvent);
-        
+        EventBus.Subscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Subscribe<ShopBuyEvent>(HandleShopBuyEvent);
     }
-
-    private void HandleShopBuyEvent(ShopBuyEvent eventData)
-    {
-        var coins = _stats.Get(StatType.Coins);
-        coins -= eventData.Item.BaseCost;
-        _stats.Set(StatType.Coins, coins);
-    }
-
+    
     private void OnDisable()
     {
         EventBus.Unsubscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Unsubscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Unsubscribe<EnemyAttackEvent>(HandleEnemyAttack);
         EventBus.Unsubscribe<PickupEvent>(HandlePickupEvent);
+        EventBus.Unsubscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
+        EventBus.Unsubscribe<ShopBuyEvent>(HandleShopBuyEvent);
     }
 
     private void Update()
@@ -116,6 +110,21 @@ public class Player : MonoBehaviour
         //TODO: do immunity, dodge and armour calculations here
         TakeDamage(eventData.Damage);
     }
+    
+    private void HandleShopCoinsSpent(ShopCoinsSpentEvent eventData)
+    {
+        var coins = _stats.Get(StatType.Coins);
+        coins -= eventData.Coins;
+        _stats.Set(StatType.Coins, coins);
+    }
+
+    private void HandleShopBuyEvent(ShopBuyEvent eventData)
+    {
+        var coins = _stats.Get(StatType.Coins);
+        coins -= eventData.Item.BaseCost;
+        _stats.Set(StatType.Coins, coins);
+    }
+
 
     public void SetPlayerState(PlayerState state)
     {

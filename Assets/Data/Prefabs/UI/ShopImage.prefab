@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8740689997297209524}
   - component: {fileID: 5474179824234598992}
   m_Layer: 5
-  m_Name: ButtonText
+  m_Name: CostText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -170,7 +170,7 @@ GameObject:
   - component: {fileID: 1925750323636496917}
   - component: {fileID: 2355581279323890631}
   m_Layer: 5
-  m_Name: ButtonText (1)
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -478,7 +478,7 @@ GameObject:
   - component: {fileID: 2857242809040292660}
   - component: {fileID: 8406603213391145513}
   m_Layer: 5
-  m_Name: RefreshButton
+  m_Name: RerollButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

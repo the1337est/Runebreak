@@ -15,6 +15,17 @@ public class ShopBuyEvent : IGameEvent
     }
 }
 
+public class ShopCardDisposeEvent : IGameEvent
+{
+    public ShopCard Card;
+
+    public ShopCardDisposeEvent(ShopCard card)
+    {
+        Card = card;
+    }
+}
+
+
 public class ShopItemUpdateEvent : IGameEvent
 {
     public List<UpgradeSO> Items;
@@ -25,6 +36,16 @@ public class ShopItemUpdateEvent : IGameEvent
     }
 }
 
-public class ShopRefreshRequestEvent : IGameEvent
+public class ShopRerollRequestEvent : IGameEvent
 {
+}
+
+public class ShopCoinsSpentEvent : IGameEvent
+{
+    public int Coins;
+
+    public ShopCoinsSpentEvent(int coins)
+    {
+        Coins = coins;
+    }
 }

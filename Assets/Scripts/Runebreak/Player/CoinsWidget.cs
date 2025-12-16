@@ -7,19 +7,15 @@ public class CoinsWidget : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _coinsText;
 
-    private void OnEnable()
-    {
-        EventBus.Subscribe<PlayerStatChangeEvent>(HandlePlayerCoinChange);
-    }
-    
-    private void OnDisable()
-    {
-        EventBus.Unsubscribe<PlayerStatChangeEvent>(HandlePlayerCoinChange);
-    }
-
     private void Awake()
     {
+        EventBus.Subscribe<PlayerStatChangeEvent>(HandlePlayerCoinChange);
         SetCoinsText(Player.Instance.Stats.Get(StatType.Coins));
+    }
+
+    private void OnDestroy()
+    {
+        EventBus.Unsubscribe<PlayerStatChangeEvent>(HandlePlayerCoinChange);
     }
 
     private void HandlePlayerCoinChange(PlayerStatChangeEvent eventData)

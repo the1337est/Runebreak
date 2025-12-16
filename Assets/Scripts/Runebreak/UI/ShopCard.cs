@@ -30,6 +30,7 @@ public class ShopCard : MonoBehaviour
         Debug.Log($"Buy clicked: {name} / {_item.Name}");
         if(!_buyButton.interactable) return;
         EventBus.Publish(new ShopBuyEvent(_item));
+        EventBus.Publish(new ShopCardDisposeEvent(this));
     }
 
     public void Set(UpgradeSO item)
@@ -39,11 +40,12 @@ public class ShopCard : MonoBehaviour
         _subtitleText.text = item.Rarity.ToString();
         _descriptionText.text = GetDescription();
         _costText.text = item.BaseCost.ToString();
+        _buyButton.interactable = Player.Instance.Stats.Get(StatType.Coins) >= _item.BaseCost;
     }
 
     public void UpdateInteractability(float coins)
     {
-        _buyButton.interactable = coins <= _item.BaseCost;
+        _buyButton.interactable = coins >= _item.BaseCost;
     }
 
     private string GetDescription()
