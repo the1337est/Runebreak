@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 public class Shop : Interactable
 {
     [SerializeField] private int _itemCount = 4;
-    [SerializeField] private GameObject _shopUI;
+    [SerializeField] private ShopUI _shopUI;
     
     [Header("Items")]
     [SerializeField] private List<UpgradeSO> _allItems;
@@ -97,10 +97,30 @@ public class Shop : Interactable
     
     public override void Interact()
     {
-        FetchShopItems();
+        OpenShop();
     }
 
-    private void FetchShopItems()
+    public override void UISelect()
+    {
+        Debug.Log("Nothing to select right now");
+        if (!IsActive) return;
+        _shopUI.Select();
+    }
+    
+    public override void UIBack()
+    {
+        if(!IsActive) return;
+        IsActive = false;
+        _shopUI.gameObject.SetActive(false);
+    }
+    
+    public override void UIOption()
+    {
+        if(!IsActive) return;
+        GenerateNewItems();
+    }
+
+    private void GenerateNewItems()
     {
         _activeItems.Clear();
         for (int i = 0; i < _itemCount; i++)
@@ -108,7 +128,16 @@ public class Shop : Interactable
             var item = GetRandomItem();
             _activeItems.Add(item);
         }
-        _shopUI.SetActive(true);
         EventBus.Publish(new ShopItemUpdateEvent(_activeItems));
+    }
+
+    private void OpenShop()
+    {
+        IsActive = true;
+        _shopUI.Open();
+        if (_activeItems.Count <= 0)
+        {
+            GenerateNewItems();
+        }
     }
 }

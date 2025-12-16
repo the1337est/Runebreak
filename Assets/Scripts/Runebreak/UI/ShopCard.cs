@@ -1,5 +1,8 @@
+using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ShopCard : MonoBehaviour
 {
@@ -8,8 +11,15 @@ public class ShopCard : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _descriptionText;
     [SerializeField] private TextMeshProUGUI _costText;
 
-    private UpgradeSO _item;
+    [SerializeField] private Button _buyButton;
     
+    private UpgradeSO _item;
+
+    private void OnEnable()
+    {
+        // _buyButton.onClick.AddListener();
+    }
+
     public void Set(UpgradeSO item)
     {
         _item = item;
@@ -27,5 +37,10 @@ public class ShopCard : MonoBehaviour
             result += change + "\n\n";
         }
         return result;
+    }
+
+    public void Select()
+    {
+        EventSystem.current.SetSelectedGameObject(_buyButton.gameObject);
     }
 }

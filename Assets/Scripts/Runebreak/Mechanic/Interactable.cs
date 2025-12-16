@@ -1,4 +1,5 @@
 using System;
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,38 +8,35 @@ public class Interactable : MonoBehaviour
     [SerializeField] private float _activationRange = 4f;
     [SerializeField] private GameObject _enabledState;
     [SerializeField] private GameObject _disabledState;
-
-    private Transform _target;
-    private bool _withinRange;
+    
     public bool InteractionAllowed { get; protected set; }
-
-    private InputActions _inputActions => GameManager.Instance.InputActions;
-    private InputAction _interactInput => _inputActions.Player.Interact;
-
-    private void Awake()
-    {
-        _target = Player.Instance.transform;
-    }
+    public bool IsActive { get; protected set; }
     
     protected virtual void OnEnable()
     {
-        _interactInput.performed += HandleInteract;
         EventBus.Publish(new InteractableEnabledEvent(this));
     }
     
     protected virtual void OnDisable()
     {
-        _interactInput.performed -= HandleInteract;
         EventBus.Publish(new InteractableDisabledEvent(this));
     }
 
-    private void HandleInteract(InputAction.CallbackContext obj)
+    public virtual void Interact()
     {
-        if (!_withinRange) return;
-        Interact();
     }
-
-    public virtual void Interact() { }
+    
+    public virtual void UISelect()
+    {
+    }
+    
+    public virtual void UIBack()
+    {
+    }
+    
+    public virtual void UIOption()
+    {
+    }
 
     public bool IsWithinRange(Vector3 pos, out float dist)
     {

@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
-using UnityEditor.SceneManagement;
+using System.Runtime.CompilerServices;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ShopUI : MonoBehaviour
 {
@@ -45,5 +45,23 @@ public class ShopUI : MonoBehaviour
                 _shopCards.RemoveAt(i);
             }
         }
+    }
+
+    public void Open()
+    {
+        gameObject.SetActive(true);
+        Debug.Log(_shopCards.Count);
+        if (_shopCards.Count > 0)
+        {
+            _shopCards[0].Select();
+        }
+
+        var selected = EventSystem.current.currentSelectedGameObject;
+        Debug.Log($"{selected}");
+    }
+
+    public void Select()
+    {
+        
     }
 }

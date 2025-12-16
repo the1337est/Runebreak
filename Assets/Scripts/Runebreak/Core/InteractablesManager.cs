@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,10 @@ public class InteractablesManager : MonoBehaviour
     
     private Vector3 _targetPosition => Player.Instance.Position;
     private InputAction _interactInput => _inputActions.Player.Interact;
+    private InputAction _uiSelectInput => _inputActions.UI.Select;
+    private InputAction _uiBackInput => _inputActions.UI.Back;
+    private InputAction _uiOptionInput => _inputActions.UI.Option;
+    
     private InputActions _inputActions => GameManager.Instance.InputActions;
     
     private Interactable _bestInteractable;
@@ -21,6 +26,11 @@ public class InteractablesManager : MonoBehaviour
     private void OnEnable()
     {
         _interactInput.performed += HandleInteract;
+        
+        _uiSelectInput.performed += HandleUISelect;
+        _uiBackInput.performed += HandleUIBack;
+        _uiOptionInput.performed += HandleUIOption;
+        
         EventBus.Subscribe<InteractableEnabledEvent>(HandleInteractableEnabled);
         EventBus.Subscribe<InteractableDisabledEvent>(HandleInteractableDisabled);
     }
@@ -54,9 +64,30 @@ public class InteractablesManager : MonoBehaviour
     private void HandleInteract(InputAction.CallbackContext context)
     {
         if (_bestInteractable == null) return;
+        GameManager.Instance.EnableInputActions(ActionMapType.UI);
         _bestInteractable.Interact();
     }
     
+    private void HandleUISelect(InputAction.CallbackContext context)
+    {
+        Debug.Log("HandleUISelect");
+        if (_bestInteractable == null) return;
+        _bestInteractable.UISelect();
+    }
+    
+    private void HandleUIBack(InputAction.CallbackContext context)
+    {
+        if (_bestInteractable == null) return;
+        _bestInteractable.UIBack();
+        GameManager.Instance.EnableInputActions(ActionMapType.Player);
+    }
+    
+    private void HandleUIOption(InputAction.CallbackContext context)
+    {
+        if (_bestInteractable == null) return;
+        _bestInteractable.UIOption();
+    }
+
     private void ProximityUpdate()
     {
         float bestDistance = float.MaxValue;

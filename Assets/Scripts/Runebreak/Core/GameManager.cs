@@ -30,14 +30,42 @@ public class GameManager : MonoBehaviour
         InputActions.Enable();
     }
 
+    public void EnableInputActions(ActionMapType actionMapType)
+    {
+        switch (actionMapType)
+        {
+            case ActionMapType.Player:
+                InputActions.Player.Enable();
+                InputActions.UI.Disable();
+                break;
+            
+            case ActionMapType.UI:
+                InputActions.Player.Disable();
+                InputActions.UI.Enable();
+                break;
+            
+            default:
+                throw new ArgumentOutOfRangeException(nameof(actionMapType), actionMapType, null);
+        }
+        Debug.Log("EnableInputActions called");
+    }
+
     private void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
+        EventBus.Subscribe<GameStartEvent>(HandleGameStart);
     }
-    
+
+
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
+        EventBus.Unsubscribe<GameStartEvent>(HandleGameStart);
+    }
+    
+    private void HandleGameStart(GameStartEvent obj)
+    {
+        EnableInputActions(ActionMapType.Player);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -57,4 +85,10 @@ public class GameManager : MonoBehaviour
     {
         InputActions.Disable();
     }
+}
+
+public enum ActionMapType
+{
+    Player,
+    UI
 }

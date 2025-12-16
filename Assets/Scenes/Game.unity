@@ -4535,7 +4535,7 @@ PrefabInstance:
     - target: {fileID: 27512688159708888, guid: 9b0dbda7feef05c459692385c0eed53f, type: 3}
       propertyPath: _shopUI
       value: 
-      objectReference: {fileID: 475564521}
+      objectReference: {fileID: 475564525}
     - target: {fileID: 5545490533598010910, guid: 9b0dbda7feef05c459692385c0eed53f, type: 3}
       propertyPath: m_Name
       value: Shop

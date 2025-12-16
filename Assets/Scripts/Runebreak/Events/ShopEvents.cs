@@ -25,3 +25,7 @@ public class ShopItemUpdateEvent : IGameEvent
         Items = items;
     }
 }
+
+public class ShopRefreshRequestEvent : IGameEvent
+{
+}
