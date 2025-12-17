@@ -22,10 +22,11 @@ public class Shop : Interactable
     private List<UpgradeSO> _epicItems = new();
     private List<UpgradeSO> _legendaryItems = new();
 
-    private int _rerollCost = 2;
-    
+    public int RerollCost { get; private set; }
+
     private void Start()
     {
+        _shopUI.RegisterShop(this);
         ProcessItems();
     }
 
@@ -37,9 +38,7 @@ public class Shop : Interactable
         EventBus.Subscribe<ShopRerollRequestEvent>(HandleShopReroll);
         EventBus.Subscribe<PlayerStatChangeEvent>(HandleStatChange);
     }
-
     
-
     protected override void OnDisable()
     {
         base.OnDisable();
@@ -60,9 +59,8 @@ public class Shop : Interactable
     private void HandleStatChange(PlayerStatChangeEvent eventData)
     {
         if (eventData.Change.Stat != StatType.Coins) return;
-        var coins = eventData.Change.Amount;
-        _shopUI.SetRerollCost(_rerollCost);
-        _shopUI.SyncCards();
+        var coins = (int)eventData.Change.Amount;
+        _shopUI.Refresh(coins);
     }
 
     private void ProcessItems()
@@ -72,6 +70,8 @@ public class Shop : Interactable
             var list = GetList(item.Rarity);
             list.Add(item);
         }
+
+        RerollCost = 2;
     }
 
     private UpgradeSO GetRandomItem()
@@ -131,10 +131,9 @@ public class Shop : Interactable
 
     private void HandleShopReroll(ShopRerollRequestEvent eventData)
     {
-        EventBus.Publish(new ShopCoinsSpentEvent(_rerollCost));
+        EventBus.Publish(new ShopCoinsSpentEvent(RerollCost));
         GenerateNewItems();
-        _rerollCost += _rerollCost;
-        _shopUI.SetRerollCost(_rerollCost);
+        RerollCost += RerollCost;
     }
     
     private void GenerateNewItems()
@@ -152,6 +151,7 @@ public class Shop : Interactable
     {
         IsActive = true;
         _shopUI.Open();
+        _shopUI.Refresh((int)Player.Instance.Stats.Get(StatType.Coins));
         if (_activeItems.Count <= 0)
         {
             GenerateNewItems();

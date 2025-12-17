@@ -16,6 +16,8 @@ public class ShopUI : MonoBehaviour
     
     private GridLayoutGroup _gridLayoutGroup;
     
+    private Shop _shop;
+    
     [SerializeField] private TextMeshProUGUI _rerollCostText;
 
     private void Awake()
@@ -23,6 +25,11 @@ public class ShopUI : MonoBehaviour
         _gridLayoutGroup = GetComponentInChildren<GridLayoutGroup>();
     }
 
+    public void RegisterShop(Shop shop)
+    {
+        _shop = shop;
+    }
+    
     private void OnEnable()
     {
         _rerollButton.onClick.AddListener(HandleRerollClick);
@@ -30,9 +37,9 @@ public class ShopUI : MonoBehaviour
         EventBus.Subscribe<ShopCardDisposeEvent>(HandleShopCardDispose);
     }
 
-
     private void OnDisable()
     {
+        _rerollButton.onClick.RemoveListener(HandleRerollClick);
         EventBus.Unsubscribe<ShopItemUpdateEvent>(HandleShopItemUpdate);
         EventBus.Unsubscribe<ShopCardDisposeEvent>(HandleShopCardDispose);
     }
@@ -106,16 +113,20 @@ public class ShopUI : MonoBehaviour
         }
     }
 
-    public void SetRerollCost(int cost)
+    public void Refresh(int coins)
     {
-        var coins = Player.Instance.Stats.Get(StatType.Coins);
-        _rerollButton.interactable = coins >= cost;
-        _rerollCostText.text = cost.ToString("N0");
+        SyncReroll(coins);
+        SyncCards(coins);
     }
 
-    public void SyncCards()
+    private void SyncReroll(int coins)
     {
-        var coins = Player.Instance.Stats.Get(StatType.Coins);
+        _rerollButton.interactable = coins >= _shop.RerollCost;
+        _rerollCostText.text = _shop.RerollCost.ToString("N0");
+    }
+
+    private void SyncCards(int coins)
+    {
         foreach (var card in _shopCards)
         {
             card.UpdateInteractability(coins);
