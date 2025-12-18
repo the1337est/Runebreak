@@ -41,9 +41,9 @@ public class LevelManager : MonoBehaviour
     private IList<(Enemy, float)> _waveEnemiesCache = new List<(Enemy, float)>();
     private int _waveIndex = -1;
     private int _timer;
-    
-    
 
+    [SerializeField] private StatsSO _playerBaseStats;
+    
     public bool IsWaveActive { get; private set; }
 
     private void Awake()
@@ -82,8 +82,10 @@ public class LevelManager : MonoBehaviour
     {
         //generate level idk
         _waveIndex = -1; //reset wave index
+        Player.Instance.Init(_playerBaseStats);
         EventBus.Publish(new GameStartEvent());
         StartNextWave();
+        Debug.Log("Game Scene Entered, player has initialized");
     }
     
     private void HandleNextWaveClick(NextWaveClickEvent obj)

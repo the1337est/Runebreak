@@ -11,19 +11,19 @@ public class StatEntry : MonoBehaviour
 
     private void Awake()
     {
-        EventBus.Subscribe<PlayerStatChangeEvent>(HandlePlayerStatChange);
+        EventBus.Subscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
+        EventBus.Publish(new PlayerGameValueRequestEvent<StatType>(_statType));
         _statName.text = _statType.ToString();
     }
     
     private void OnDestroy()
     {
-        EventBus.Unsubscribe<PlayerStatChangeEvent>(HandlePlayerStatChange);
+        EventBus.Unsubscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
     }
 
-    private void HandlePlayerStatChange(PlayerStatChangeEvent eventData)
+    private void HandlePlayerStatChange(PlayerGameValueChangeEvent<StatType> eventData)
     {
-        if (eventData.Change.Stat != _statType) return;
-        var amount = Player.Instance.Stats.Get(_statType);
-        _statValue.text = amount.ToString("N0");
+        if (eventData.ValueType != _statType) return;
+        _statValue.text = eventData.Amount.ToString("N0");
     }
 }

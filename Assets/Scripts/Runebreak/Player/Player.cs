@@ -37,17 +37,26 @@ public class Player : MonoBehaviour
     private float _nextAttackTime = 0f;
 
     public PlayerState State { get; private set; }
-    
-    private Stats _stats;
-    public Stats Stats => _stats;
+    public Stats Stats { get; private set; }
+    public Resources Resources { get; private set; }
 
+    private StatsSO _baseStats;
+    
     private void Awake()
     {
         Instance = this;
         _bullets = new List<PlayerBullet>();
         _availableBullets = new List<PlayerBullet>();
         State = PlayerState.Menu;
-        _stats = new Stats();
+        Stats = new Stats();
+        Resources = new Resources();
+    }
+
+    public void Init(StatsSO baseStats)
+    {
+        _baseStats = baseStats;
+        InitStats(_baseStats);
+        InitResources();
     }
 
     private void OnEnable()
@@ -58,8 +67,10 @@ public class Player : MonoBehaviour
         EventBus.Subscribe<PickupEvent>(HandlePickupEvent);
         EventBus.Subscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Subscribe<ShopBuyEvent>(HandleShopBuyEvent);
+        EventBus.Subscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
+        EventBus.Subscribe<PlayerGameValueRequestEvent<ResourceType>>(HandlePlayerResourceRequest);
     }
-    
+
     private void OnDisable()
     {
         EventBus.Unsubscribe<WaveStartEvent>(HandleWaveStart);
@@ -68,6 +79,9 @@ public class Player : MonoBehaviour
         EventBus.Unsubscribe<PickupEvent>(HandlePickupEvent);
         EventBus.Unsubscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Unsubscribe<ShopBuyEvent>(HandleShopBuyEvent);
+        
+        EventBus.Unsubscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
+        EventBus.Unsubscribe<PlayerGameValueRequestEvent<ResourceType>>(HandlePlayerResourceRequest);
     }
 
     private void Update()
@@ -90,14 +104,43 @@ public class Player : MonoBehaviour
         ResetPlayer();
     }
 
+    private void HandlePlayerStatRequest(PlayerGameValueRequestEvent<StatType> eventData)
+    {
+        var value = Stats.Get(eventData.ValueType);
+        var data = new PlayerGameValueChangeEvent<StatType>(new GameValueChange<StatType>(eventData.ValueType, value));
+        EventBus.Publish(data);
+    }
+
+    private void HandlePlayerResourceRequest(PlayerGameValueRequestEvent<ResourceType> eventData)
+    {
+        var value = Resources.Get(eventData.ValueType);
+        var data = new PlayerGameValueChangeEvent<ResourceType>(new GameValueChange<ResourceType>(eventData.ValueType, value));
+        EventBus.Publish(data);
+    }
+    
     private void ResetPlayer()
     {
         State = PlayerState.Idle;
-        _currentHealth = _maxHealth;
-        _stats.Set(StatType.MaxHP, _maxHealth);
-        _stats.Set(StatType.HP, _currentHealth);
         _spriteRenderer.color = Color.white;
         transform.position = Vector2.zero;
+        InitStats(_baseStats);
+        InitResources();
+    }
+    
+    private void InitStats(StatsSO baseStats)
+    {
+        Stats = new Stats();
+        foreach (var item in baseStats.Stats)
+        {
+            Stats.Set(item.Stat, item.Value);
+        }
+    }
+
+    private void InitResources()
+    {
+        Resources = new Resources();
+        Resources.Set(ResourceType.Coins, 0);
+        Resources.Set(ResourceType.HP, Stats.Get(StatType.MaxHP));
     }
 
     private void HandleWaveEnd(WaveEndEvent eventData)
@@ -113,16 +156,16 @@ public class Player : MonoBehaviour
     
     private void HandleShopCoinsSpent(ShopCoinsSpentEvent eventData)
     {
-        var coins = _stats.Get(StatType.Coins);
+        var coins = Resources.Get(ResourceType.Coins);
         coins -= eventData.Coins;
-        _stats.Set(StatType.Coins, coins);
+        Resources.Set(ResourceType.Coins, coins);
     }
 
     private void HandleShopBuyEvent(ShopBuyEvent eventData)
     {
-        var coins = _stats.Get(StatType.Coins);
+        var coins = Resources.Get(ResourceType.Coins);
         coins -= eventData.Item.BaseCost;
-        _stats.Set(StatType.Coins, coins);
+        Resources.Set(ResourceType.Coins, coins);
     }
 
 
@@ -211,31 +254,31 @@ public class Player : MonoBehaviour
 
     private void AddCoin(int baseAmount)
     {
-        var coins = _stats.Get(StatType.Coins);
+        var coins = Resources.Get(ResourceType.Coins);
         //add stat calculation here to baseAmount
         coins += baseAmount;
-        _stats.Set(StatType.Coins, coins);
+        Resources.Set(ResourceType.Coins, coins);
     }
     
     private void AddHealth(int baseAmount)
     {
-        var hp = _stats.Get(StatType.HP);
+        var hp = Resources.Get(ResourceType.HP);
         //add stat calculation here to baseAmount
         hp += baseAmount;
-        _stats.Set(StatType.HP, hp);
+        Resources.Set(ResourceType.HP, hp);
     }
     
     private void AddLootBox(int baseAmount)
     {
-        var boxes = _stats.Get(StatType.UnopenedBox);
+        var boxes = Resources.Get(ResourceType.LootBox);
         //add stat calculation here to baseAmount
         boxes += baseAmount;
-        _stats.Set(StatType.UnopenedBox, boxes);
+        Resources.Set(ResourceType.LootBox, boxes);
     }
     
     private void TakeDamage(float amount)
     {
-        var hp = _stats.Get(StatType.HP);
+        var hp = Resources.Get(ResourceType.HP);
         if (hp <= 0) return;
 
         hp -= amount;
@@ -243,7 +286,7 @@ public class Player : MonoBehaviour
         {
             Die();
         }
-        _stats.Set(StatType.HP, Mathf.Clamp(hp, 0, _stats.Get(StatType.MaxHP)));
+        Resources.Set(ResourceType.HP, Mathf.Clamp(hp, 0, Stats.Get(StatType.MaxHP)));
         EventBus.Publish(new PlayerHitEvent());
     }
 

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public static class EventBus
 {
-    // Key: message type, Value: multicast delegate (Action<T> boxed as Delegate)
     private static readonly Dictionary<Type, Delegate> _handlers = new();
 
     public static void Subscribe<T>(Action<T> handler) where T: IGameEvent

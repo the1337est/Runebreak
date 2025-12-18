@@ -265,7 +265,7 @@ MonoBehaviour:
   _bulletPrefab: {fileID: 5584032339465171728, guid: 29db734787967604d96dbcab60bd9776, type: 3}
   _bulletOrigin: {fileID: 4849020042177418494}
   _range: 10
-  _attackInterval: 0.5
+  _attackInterval: 1
   _projectileSpeed: 12
   _maxHealth: 10
   _currentHealth: 0

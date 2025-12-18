@@ -3,8 +3,6 @@ using UnityEngine;
 public enum StatType
 {
     None,
-    Coins,
-    HP,
     MaxHP,
     Speed,
     AttackSpeed,
@@ -16,8 +14,6 @@ public enum StatType
     Collect,
     CollectRadius,
     DamageOnCollect,
-    UnopenedBox,
-    
 }
 
 public enum StatChangeType

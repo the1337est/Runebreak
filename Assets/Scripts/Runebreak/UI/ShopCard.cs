@@ -40,7 +40,7 @@ public class ShopCard : MonoBehaviour
         _subtitleText.text = item.Rarity.ToString();
         _descriptionText.text = GetDescription();
         _costText.text = item.BaseCost.ToString();
-        _buyButton.interactable = Player.Instance.Stats.Get(StatType.Coins) >= _item.BaseCost;
+        _buyButton.interactable = Player.Instance.Resources.Get(ResourceType.Coins) >= _item.BaseCost;
     }
 
     public void UpdateInteractability(float coins)

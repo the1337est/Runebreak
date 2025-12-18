@@ -9,24 +9,23 @@ public class CoinsWidget : MonoBehaviour
 
     private void Awake()
     {
-        EventBus.Subscribe<PlayerStatChangeEvent>(HandlePlayerCoinChange);
-        SetCoinsText(Player.Instance.Stats.Get(StatType.Coins));
+        EventBus.Subscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
+        SetCoinsText(Player.Instance.Resources.Get(ResourceType.Coins));
+    }
+
+    private void HandleResourceChange(PlayerGameValueChangeEvent<ResourceType> eventData)
+    {
+        if (eventData.ValueType != ResourceType.Coins) return;
+        SetCoinsText(eventData.Amount);
     }
 
     private void OnDestroy()
     {
-        EventBus.Unsubscribe<PlayerStatChangeEvent>(HandlePlayerCoinChange);
-    }
-
-    private void HandlePlayerCoinChange(PlayerStatChangeEvent eventData)
-    {
-        if (eventData.Change.Stat != StatType.Coins) return;
-        SetCoinsText(eventData.Amount);
+        EventBus.Unsubscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
     }
 
     private void SetCoinsText(float value)
     {
         _coinsText.text = value.ToString("N0");
     }
-
 }

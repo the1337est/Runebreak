@@ -15,19 +15,14 @@ public class ShopUI : MonoBehaviour
     private List<ShopCard> _shopCards = new ();
     
     private GridLayoutGroup _gridLayoutGroup;
-    
-    private Shop _shop;
+
+    private int _rerollCostCache;
     
     [SerializeField] private TextMeshProUGUI _rerollCostText;
 
     private void Awake()
     {
         _gridLayoutGroup = GetComponentInChildren<GridLayoutGroup>();
-    }
-
-    public void RegisterShop(Shop shop)
-    {
-        _shop = shop;
     }
     
     private void OnEnable()
@@ -113,16 +108,17 @@ public class ShopUI : MonoBehaviour
         }
     }
 
-    public void Refresh(int coins)
+    public void Refresh(int coins, int rerollCost)
     {
-        SyncReroll(coins);
+        SyncReroll(coins, rerollCost);
         SyncCards(coins);
     }
 
-    private void SyncReroll(int coins)
+    private void SyncReroll(int coins, int rerollCost)
     {
-        _rerollButton.interactable = coins >= _shop.RerollCost;
-        _rerollCostText.text = _shop.RerollCost.ToString("N0");
+        _rerollCostCache = rerollCost;
+        _rerollButton.interactable = coins >= _rerollCostCache;
+        _rerollCostText.text = _rerollCostCache.ToString("N0");
     }
 
     private void SyncCards(int coins)
