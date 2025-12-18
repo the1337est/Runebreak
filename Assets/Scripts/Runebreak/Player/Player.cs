@@ -4,14 +4,13 @@ using System.Linq;
 using DG.Tweening;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SocialPlatforms.Impl;
 
 [DefaultExecutionOrder(-10)]
 public class Player : MonoBehaviour
 {
     private InputActions _inputActions => GameManager.Instance.InputActions;
-
-    [SerializeField] private float _moveSpeed;
-
+    
     private Vector2 _movement;
     private bool _lookingRight = true;
     [SerializeField] private SpriteRenderer _spriteRenderer;
@@ -25,14 +24,12 @@ public class Player : MonoBehaviour
     
     [SerializeField] private PlayerBullet _bulletPrefab;
     [SerializeField] private Transform _bulletOrigin;
-
-    [SerializeField] private float _range = 5f;
-    [SerializeField] private float _attackInterval = 1f;
-    [SerializeField] private float _projectileSpeed = 5f;
     
-    [Header("Health")]
-    [SerializeField] private float _maxHealth = 10f;
-    [SerializeField] private float _currentHealth;
+    [Header("Base Stat Values")]
+    [SerializeField] private float _range = 5f;
+    [SerializeField] private float _moveSpeed;
+    [SerializeField] private float _attackInterval = 1f;
+    [SerializeField] private float _projectileSpeed = 12f;
     
     private float _nextAttackTime = 0f;
 
@@ -79,6 +76,8 @@ public class Player : MonoBehaviour
         EventBus.Subscribe<PickupEvent>(HandlePickupEvent);
         EventBus.Subscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Subscribe<ShopBuyEvent>(HandleShopBuyEvent);
+        
+        EventBus.Subscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
         EventBus.Subscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
         EventBus.Subscribe<PlayerGameValueRequestEvent<ResourceType>>(HandlePlayerResourceRequest);
     }
@@ -91,6 +90,8 @@ public class Player : MonoBehaviour
         EventBus.Unsubscribe<PickupEvent>(HandlePickupEvent);
         EventBus.Unsubscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Unsubscribe<ShopBuyEvent>(HandleShopBuyEvent);
+        
+        EventBus.Unsubscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
         
         EventBus.Unsubscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
         EventBus.Unsubscribe<PlayerGameValueRequestEvent<ResourceType>>(HandlePlayerResourceRequest);
@@ -115,6 +116,7 @@ public class Player : MonoBehaviour
     {
         _allowPastRightBorder = false;
         State = PlayerState.Idle;
+        Resources.Set(ResourceType.HP, Stats.Get(StatType.MaxHP));
     }
 
     private void HandlePlayerStatRequest(PlayerGameValueRequestEvent<StatType> eventData)
@@ -180,8 +182,76 @@ public class Player : MonoBehaviour
         var coins = Resources.Get(ResourceType.Coins);
         coins -= eventData.Item.BaseCost;
         Resources.Set(ResourceType.Coins, coins);
+        ApplyUpgrade(eventData.Item);
+    }
+    
+    private void HandlePlayerStatChange(PlayerGameValueChangeEvent<StatType> eventData)
+    {
+        switch (eventData.ValueType)
+        {
+            case StatType.Speed:
+                _moveSpeed = eventData.Amount;
+                _projectileSpeed = _moveSpeed * 2f;
+                break;
+            
+            case StatType.Range:
+                _range = eventData.Amount;
+                break;
+            
+            case StatType.AttackSpeed:
+                _attackInterval = 1f/eventData.Amount;
+                break;
+            
+            case StatType.Damage:
+                break;
+            case StatType.Armour:
+                break;
+            case StatType.Dodge:
+                break;
+            case StatType.HPRegen:
+                break;
+            case StatType.LifeSteal:
+                break;
+            case StatType.Collect:
+                break;
+            case StatType.PickupRange:
+                break;
+            case StatType.DamageOnCollect:
+                break;
+        }
     }
 
+    private void ApplyUpgrade(UpgradeSO upgrade)
+    {
+        foreach (var change in upgrade.Changes)
+        {
+            ProcessChange(change);
+        }
+    }
+
+    private void ProcessChange(StatChange statChange)
+    {
+        var value = Stats.Get(statChange.Stat);
+        var baseValue = _baseStats.Stats.Find(f => f.Stat == statChange.Stat).Value;
+        
+        switch (statChange.Type)
+        {
+            case StatChangeType.Flat:
+                Stats.Set(statChange.Stat, value + statChange.Amount);
+                break;
+            
+            case StatChangeType.Percent:
+                Stats.Set(statChange.Stat, value + baseValue * (statChange.Amount/100f));
+                break;
+            
+            case StatChangeType.Multiply:
+                Stats.Set(statChange.Stat, baseValue * statChange.Amount);
+                break;
+            
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
 
     public void SetPlayerState(PlayerState state)
     {

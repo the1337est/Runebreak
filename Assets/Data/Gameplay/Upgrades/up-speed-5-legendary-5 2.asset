@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c273806feac3ae94d8fc4fa309019c8c, type: 3}
-  m_Name: up-speed-4-epic-4 1
+  m_Name: up-speed-5-legendary-5 2
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  Name: Superior Speed
-  BaseCost: 45
-  Rarity: 3
+  Name: Mythic Speed
+  BaseCost: 90
+  Rarity: 4
   Stackable: 1
   Changes:
-  - Stat: 4
+  - Stat: 2
     Type: 0
-    Amount: 10
+    Amount: 5

@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c273806feac3ae94d8fc4fa309019c8c, type: 3}
-  m_Name: up-maxhp-3-rare-3
+  m_Name: up-speed-3-rare-3
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  Name: Greater HP
+  Name: Greater Speed
   BaseCost: 25
   Rarity: 2
   Stackable: 1
   Changes:
-  - Stat: 1
+  - Stat: 2
     Type: 0
-    Amount: 4
+    Amount: 3

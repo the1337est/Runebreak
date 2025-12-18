@@ -6,25 +6,25 @@ using UnityEngine;
 public class PickupManager : MonoBehaviour
 {
     private Transform _player;
-    
-    [Header("Prefabs")]
-    [SerializeField] private Pickup _coinPrefab;
 
-    [SerializeField] private float _magnetRadius = 2f;
+    [Header("Prefabs")] [SerializeField] private Pickup _coinPrefab;
+
+    private float _magnetRadius;
     [SerializeField] private float _collectRadius = 0.2f;
     [SerializeField] float _checkInterval = 0.1f;
-    
+
     [SerializeField] private List<Pickup> _pickups;
     private float _nextCheckTime;
 
     public static PickupManager Instance;
-    
+
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
         }
+
         _player = FindFirstObjectByType<Player>().transform;
         _pickups = new List<Pickup>();
     }
@@ -32,16 +32,26 @@ public class PickupManager : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyDeathEvent>(HandleEnemyDeath);
+        EventBus.Subscribe<PlayerGameValueChangeEvent<StatType>>(HandleStatChange);
+        
+        EventBus.Publish(new PlayerGameValueRequestEvent<StatType>(StatType.PickupRange));
     }
-    
+
     private void OnDisable()
     {
         EventBus.Unsubscribe<EnemyDeathEvent>(HandleEnemyDeath);
+        EventBus.Unsubscribe<PlayerGameValueChangeEvent<StatType>>(HandleStatChange);
     }
 
     private void HandleEnemyDeath(EnemyDeathEvent eventData)
     {
         SpawnCoin(eventData.Position, eventData.Coins);
+    }
+
+    private void HandleStatChange(PlayerGameValueChangeEvent<StatType> eventData)
+    {
+        if(eventData.ValueType != StatType.PickupRange) return;
+        _magnetRadius = eventData.Amount;
     }
 
     public void Register(Pickup pickup)

@@ -18,7 +18,18 @@ public class StatChange
 
     public override string ToString()
     {
-        return $"Gain <color=green>{Amount:N0}</color> {Stat}";
+        string prefix = Amount >= 0 ? "Gain" : "Lose";
+        string suffix = string.Empty;
+        if (Type == StatChangeType.Percent)
+        {
+            suffix = "%";
+        }
+        else if (Type == StatChangeType.Multiply)
+        {
+            suffix = "x";
+        }
+
+        return $"{prefix} <color=green>{Amount:N0}{suffix}</color> {Stat}";
     }
 }
 
@@ -38,6 +49,16 @@ public class GameValueChange<T> where T : Enum
     public override string ToString()
     {
         string prefix = Amount >= 0 ? "Gain" : "Lose";
-        return $"{prefix} <color=green>{Amount:N0}</color> {ValueType}";
+        string suffix = string.Empty;
+        if (ChangeType == StatChangeType.Percent)
+        {
+            suffix = "%";
+        }
+        else if (ChangeType == StatChangeType.Multiply)
+        {
+            suffix = "x";
+        }
+
+        return $"{prefix} <color=green>{Amount:N0}{suffix}</color> {ValueType}";
     }
 }

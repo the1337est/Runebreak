@@ -5,6 +5,7 @@ public enum StatType
     None,
     MaxHP,
     Speed,
+    Range,
     AttackSpeed,
     Damage,
     Armour,
@@ -12,7 +13,7 @@ public enum StatType
     HPRegen,
     LifeSteal,
     Collect,
-    CollectRadius,
+    PickupRange,
     DamageOnCollect,
 }
 

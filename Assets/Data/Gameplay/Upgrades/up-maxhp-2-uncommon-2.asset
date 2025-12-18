@@ -17,6 +17,6 @@ MonoBehaviour:
   Rarity: 1
   Stackable: 1
   Changes:
-  - Stat: 3
+  - Stat: 1
     Type: 0
     Amount: 2
