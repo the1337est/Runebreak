@@ -8,6 +8,8 @@ using UnityEngine.Serialization;
 public class WaveData : ScriptableObject
 {
     public int Time;
+    public Sprite FloorSprite;
+    public Sprite WallSprite;
     
     [Header("Spawn Details")]
     public float SpawnInterval;

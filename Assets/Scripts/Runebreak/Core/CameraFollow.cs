@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class CameraFollow : MonoBehaviour
@@ -10,7 +11,6 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private Vector2 offset;              // screen offset for framing
 
     [Header("Bounds (World Space)")]
-    public bool useBounds = false;
     public float minX, maxX;
     public float minY, maxY;
 
@@ -19,6 +19,21 @@ public class CameraFollow : MonoBehaviour
     private void Awake()
     {
         cam = Camera.main;
+    }
+
+    private void OnEnable()
+    {
+        EventBus.Subscribe<PlayerPositionSnapEvent>(HandlePlayerPositionSnap);
+    }
+    
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<PlayerPositionSnapEvent>(HandlePlayerPositionSnap);
+    }
+
+    private void HandlePlayerPositionSnap(PlayerPositionSnapEvent eventData)
+    {
+        transform.position += eventData.Offset;
     }
 
     private void LateUpdate()
@@ -35,21 +50,6 @@ public class CameraFollow : MonoBehaviour
         // Smooth follow
         Vector3 smoothPos = Vector3.Lerp(transform.position, desired, followSpeed * Time.deltaTime);
 
-        // Apply bounds if required
-        if (useBounds)
-            smoothPos = ClampToBounds(smoothPos);
-
         transform.position = smoothPos;
-    }
-
-    private Vector3 ClampToBounds(Vector3 camPos)
-    {
-        float camHeight = cam.orthographicSize;
-        float camWidth = camHeight * cam.aspect;
-
-        float clampedX = Mathf.Clamp(camPos.x, minX + camWidth, maxX - camWidth);
-        float clampedY = Mathf.Clamp(camPos.y, minY + camHeight, maxY - camHeight);
-
-        return new Vector3(clampedX, clampedY, camPos.z);
     }
 }

@@ -25,3 +25,7 @@ public class TimerUpdateEvent : IGameEvent
         Timer = timer;
     }
 }
+
+public class LevelSwitchOverEvent : IGameEvent
+{
+}

@@ -41,6 +41,10 @@ public class Player : MonoBehaviour
     public Resources Resources { get; private set; }
 
     private StatsSO _baseStats;
+
+    private bool _allowPastRightBorder;
+
+    private Vector2 _worldSize;
     
     private void Awake()
     {
@@ -52,11 +56,19 @@ public class Player : MonoBehaviour
         Resources = new Resources();
     }
 
+    public void SnapPositionOffset(Vector3 offset)
+    {
+        transform.position += offset;
+        EventBus.Publish(new PlayerPositionSnapEvent(offset));
+    }
+    
     public void Init(StatsSO baseStats)
     {
         _baseStats = baseStats;
+        _worldSize = LevelManager.Instance.WorldSize;
         InitStats(_baseStats);
         InitResources();
+        EventBus.Publish(new PlayerSpawnEvent(this));
     }
 
     private void OnEnable()
@@ -101,7 +113,8 @@ public class Player : MonoBehaviour
     
     private void HandleWaveStart(WaveStartEvent eventData)
     {
-        ResetPlayer();
+        _allowPastRightBorder = false;
+        State = PlayerState.Idle;
     }
 
     private void HandlePlayerStatRequest(PlayerGameValueRequestEvent<StatType> eventData)
@@ -146,6 +159,7 @@ public class Player : MonoBehaviour
     private void HandleWaveEnd(WaveEndEvent eventData)
     {
         State = PlayerState.Shopping;
+        _allowPastRightBorder = true;
     }
     
     private void HandleEnemyAttack(EnemyAttackEvent eventData)
@@ -223,7 +237,7 @@ public class Player : MonoBehaviour
         
         transform.Translate(_movement * _moveSpeed * Time.deltaTime);
         var p = transform.position;
-        transform.position = new Vector3(LevelManager.Instance.GetClampedX(p.x), LevelManager.Instance.GetClampedY(p.y), p.z);
+        transform.position = new Vector3(GetClampedX(p.x), GetClampedY(p.y), p.z);
     }
 
     public void ReturnBullet(PlayerBullet bullet)
@@ -295,6 +309,17 @@ public class Player : MonoBehaviour
         _spriteRenderer.DOColor(Color.red, 0.2f);
         SetPlayerState(PlayerState.Dead);
         EventBus.Publish(new PlayerDeathEvent());
+    }
+    
+    public float GetClampedY(float y)
+    {
+        return Mathf.Clamp(y, -_worldSize.y/2f, _worldSize.y/2f);
+    }
+    
+    public float GetClampedX(float x)
+    {
+        var max = _allowPastRightBorder ? _worldSize.x * 1.5f : _worldSize.x/2f;
+        return Mathf.Clamp(x, -_worldSize.x/2f, max);
     }
 
     private void OnDestroy()

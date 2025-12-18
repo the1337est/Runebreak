@@ -32,5 +32,26 @@ public class PlayerGameValueRequestEvent<T> : IGameEvent where T : Enum
         ValueType = valueType;
     }
 }
+
+public class PlayerSpawnEvent : IGameEvent
+{
+    public Player Player;
+
+    public PlayerSpawnEvent(Player player)
+    {
+        Player = player;
+
+    }
+}
+
+public class PlayerPositionSnapEvent : IGameEvent
+{
+    public Vector3 Offset;
+
+    public PlayerPositionSnapEvent(Vector3 offset)
+    {
+        Offset = offset;
+    }
+}
         
 

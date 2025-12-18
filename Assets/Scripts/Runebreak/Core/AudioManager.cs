@@ -15,7 +15,6 @@ public class AudioManager : MonoBehaviour
     
     private void Awake()
     {
-        // SetupAudioSoucePool();
         _mainSource = GetComponent<AudioSource>();
     }
 
@@ -26,6 +25,12 @@ public class AudioManager : MonoBehaviour
     {
         EventBus.Subscribe<EnemyDeathEvent>(HandleEnemyDeath);
         EventBus.Subscribe<PickupEvent>(HandlePickup);
+    }
+    
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<EnemyDeathEvent>(HandleEnemyDeath);
+        EventBus.Unsubscribe<PickupEvent>(HandlePickup);
     }
 
     private void HandlePickup(PickupEvent eventData)

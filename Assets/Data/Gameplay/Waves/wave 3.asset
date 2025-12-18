@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ec3fa588776fb8a4995c13678e3abdad, type: 3}
   m_Name: wave 3
   m_EditorClassIdentifier: Assembly-CSharp::WaveData
-  Time: 30
+  Time: 10
+  FloorSprite: {fileID: 2031947269, guid: f3b79ce582a21384aa98781ac2e7249d, type: 3}
+  WallSprite: {fileID: 0}
   SpawnInterval: 1.05
   MinSpawnCount: 3
   MaxSpawnCount: 5

@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 [DefaultExecutionOrder(-90)]
@@ -44,8 +45,12 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private StatsSO _playerBaseStats;
     
+    
     public bool IsWaveActive { get; private set; }
 
+    [FormerlySerializedAs("_floor")] [SerializeField] private CurrentFloor currentFloor;
+    [SerializeField] private NextLevelFloor _nextFloor;    
+    
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -66,6 +71,7 @@ public class LevelManager : MonoBehaviour
         EventBus.Subscribe<EnemyDeathEvent>(HandleEnemyDeath);
         
         EventBus.Subscribe<PlayerDeathEvent>(HandlePlayerDeath);
+        EventBus.Subscribe<LevelSwitchOverEvent>(HandleLevelSwitch);
     }
     
     private void OnDisable()
@@ -76,6 +82,7 @@ public class LevelManager : MonoBehaviour
         EventBus.Unsubscribe<EnemyDeathEvent>(HandleEnemyDeath);
         
         EventBus.Unsubscribe<PlayerDeathEvent>(HandlePlayerDeath);
+        EventBus.Unsubscribe<LevelSwitchOverEvent>(HandleLevelSwitch);
     }
     
     private void HandleGameSceneEnter(GameSceneEnterEvent obj)
@@ -92,11 +99,28 @@ public class LevelManager : MonoBehaviour
     {
         StartNextWave();
     }
-    
+
+    private void HandleLevelSwitch(LevelSwitchOverEvent eventData)
+    {
+        Player.Instance.SnapPositionOffset(Vector2.left * _worldSize.x);
+        StartNextWave();
+    } 
+
     private void HandlePlayerDeath(PlayerDeathEvent eventData)
     {
         //save wave details if any
         IsWaveActive = false;
+    }
+
+    private WaveData GetNextWave()
+    {
+        WaveData wave = null;
+        if (_waveIndex < _waves.Count - 1)
+        {
+            wave = _waves[_waveIndex + 1];
+        }
+
+        return wave;
     }
 
     private void StartNextWave()
@@ -109,6 +133,9 @@ public class LevelManager : MonoBehaviour
         }
 
         _currentWave = _waves[_waveIndex];
+        currentFloor.Initialize(_currentWave);
+        _nextFloor.gameObject.SetActive(false);
+        _nextFloor.Initialize(GetNextWave());
         LoadWave(_currentWave);
         IsWaveActive = true;
         WaveTick();
@@ -148,9 +175,14 @@ public class LevelManager : MonoBehaviour
         _aliveEnemies.Clear();
         //return player to the center
         IsWaveActive = false;
-        
+        EnableNextLevel();
         EventBus.Publish(new TimerUpdateEvent(_timer));
         EventBus.Publish(new WaveEndEvent());
+    }
+
+    private void EnableNextLevel()
+    {
+        _nextFloor.gameObject.SetActive(true);
     }
 
     private void ProcessWaveUpdate()
