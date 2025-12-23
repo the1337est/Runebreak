@@ -1,4 +1,4 @@
-using System;
+using System.Collections;
 using System.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
@@ -23,12 +23,14 @@ public class Enemy : MonoBehaviour
     private float _nextAttackTime;
 
     protected float _attackRangeSqr;
+    
+    private EnemyHealthWidget _healthWidget;
 
     public bool IsAlive;
 
     private bool _waveActive;
     
-    private SpriteRenderer _spriteRenderer;
+    [SerializeField] private SpriteRenderer _spriteRenderer;
 
     private bool _movementLock = false;
     public void Init()
@@ -39,20 +41,25 @@ public class Enemy : MonoBehaviour
         IsAlive = true;
         _attackRangeSqr = _attackRange * _attackRange;
         _movementLock = true;
-        UnblockMovement();
+        StartCoroutine(UnblockMovement());
     }
 
-    private async void UnblockMovement()
+    private IEnumerator UnblockMovement()
     {
-        await Task.Delay(500);
+        yield return new WaitForSeconds(0.5f);
         _movementLock = false;
     }
 
     private void Awake()
     {
+        _healthWidget = GetComponentInChildren<EnemyHealthWidget>();
+        if (_healthWidget != null)
+        {
+            _healthWidget.SetHealthNormalized(1f);
+        }
+
         if (_currentHealth <= 0)
             _currentHealth = _maxHealth;
-        _spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     private void Update()
@@ -86,8 +93,17 @@ public class Enemy : MonoBehaviour
         if (!IsAlive) return;
         if (!(Time.time >= _nextAttackTime)) return;
         if (!CanAttack()) return;
-        
-        Attack();
+        _spriteRenderer.DOColor(Color.magenta, 0.25f).OnComplete(() =>
+        {
+            if (gameObject != null)
+            {
+                Attack();
+            }
+            if (_spriteRenderer != null)
+            {
+                _spriteRenderer.DOColor(Color.white, 0.15f);
+            }
+        });
         UpdateNextAttackTime();
     }
 
@@ -104,7 +120,7 @@ public class Enemy : MonoBehaviour
 
     protected virtual void Attack()
     {
-        //override in enemy implementation
+        
     }
 
     private Vector3 GetSeparation()
@@ -129,6 +145,11 @@ public class Enemy : MonoBehaviour
         if (_currentHealth <= 0) return;
 
         _currentHealth -= amount;
+        if (_healthWidget != null)
+        {
+            _healthWidget.SetHealthNormalized(_currentHealth/_maxHealth);
+        }
+        
         if (_currentHealth <= 0)
         {
             Die();

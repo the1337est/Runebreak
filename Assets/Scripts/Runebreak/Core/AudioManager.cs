@@ -21,18 +21,27 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private List<AudioClip> _coinCollectClips;
     [SerializeField] private List<AudioClip> _killClips;
 
+    [SerializeField] private AudioClip _attack;
+    
     private void OnEnable()
     {
         EventBus.Subscribe<EnemyDeathEvent>(HandleEnemyDeath);
+        EventBus.Subscribe<PlayerAttackEvent>(HandlePlayerAttack);
         EventBus.Subscribe<PickupEvent>(HandlePickup);
     }
-    
+
     private void OnDisable()
     {
         EventBus.Unsubscribe<EnemyDeathEvent>(HandleEnemyDeath);
         EventBus.Unsubscribe<PickupEvent>(HandlePickup);
+        EventBus.Unsubscribe<PlayerAttackEvent>(HandlePlayerAttack);
     }
 
+    private void HandlePlayerAttack(PlayerAttackEvent obj)
+    {
+        _mainSource.PlayOneShot(_attack);
+    }
+    
     private void HandlePickup(PickupEvent eventData)
     {
         var random = _coinCollectClips[Random.Range(0, _coinCollectClips.Count)];

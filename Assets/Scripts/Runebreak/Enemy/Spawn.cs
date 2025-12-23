@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -14,32 +15,31 @@ public class Spawn : MonoBehaviour
     {
         _enemy = enemy;
         _position = position;
-        SpawnEnemyAsync();
+        StartCoroutine(SpawnAfterDelay(1.2f));
     }
 
-    private async void SpawnEnemyAsync()
+    private void OnEnable()
     {
-        try
-        {
-            _cts = new CancellationTokenSource();
-            await Task.Delay(1200, _cts.Token);
-
-            _cts.Token.ThrowIfCancellationRequested();
-            if (!this || !gameObject.activeInHierarchy) return;
-
-            var e = Instantiate(_enemy, _position, Quaternion.identity);
-            EventBus.Publish(new EnemySpawnEvent(e));
-            Destroy(gameObject);
-        }
-        catch (OperationCanceledException)
-        {
-            
-        }
+        EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
+    }
+    
+    private void OnDisable()
+    {
+        EventBus.Unsubscribe<WaveEndEvent>(HandleWaveEnd);
     }
 
-    private void OnDestroy()
+    private void HandleWaveEnd(WaveEndEvent obj)
     {
-        _cts?.Cancel();
-        _cts?.Dispose();
+        StopAllCoroutines();
+        Destroy(gameObject);
+    }
+
+    private IEnumerator SpawnAfterDelay(float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        if (gameObject == null || !gameObject.activeInHierarchy) yield break;
+        var e = Instantiate(_enemy, _position, Quaternion.identity);
+        EventBus.Publish(new EnemySpawnEvent(e));
+        Destroy(gameObject);
     }
 }

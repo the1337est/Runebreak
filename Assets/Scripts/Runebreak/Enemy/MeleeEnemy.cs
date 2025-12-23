@@ -12,6 +12,7 @@ public class MeleeEnemy : Enemy
 
     protected override void Attack()
     {
+        base.Attack();
         EventBus.Publish(new EnemyAttackEvent(this, AttackType.Melee, DamageType.Blunt, _damage));
     }
 }

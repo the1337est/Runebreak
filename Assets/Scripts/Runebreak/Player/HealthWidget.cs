@@ -7,37 +7,34 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Slider))]
 public class HealthWidget : MonoBehaviour
 {
-    private Slider _slider; 
+    [SerializeField] private Slider _slider;
     [SerializeField] private TextMeshProUGUI _hpText;
 
     private float _maxHPCache;
     private float _hpCache;
     
-    private void Awake()
-    {
-        _slider = GetComponent<Slider>();
-    }
+    protected bool IsFullHealth => Mathf.Approximately(_hpCache, _maxHPCache);
 
-    private void OnEnable()
+    protected virtual void Awake()
     {
         EventBus.Subscribe<PlayerGameValueChangeEvent<StatType>>(HandleStatChange);
         EventBus.Subscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
     }
 
-    private void OnDisable()
+    protected virtual void OnDestroy()
     {
         EventBus.Unsubscribe<PlayerGameValueChangeEvent<StatType>>(HandleStatChange);
         EventBus.Unsubscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
     }
 
-    private void HandleResourceChange(PlayerGameValueChangeEvent<ResourceType> eventData)
+    protected virtual void HandleResourceChange(PlayerGameValueChangeEvent<ResourceType> eventData)
     {
         if (eventData.ValueType != ResourceType.HP) return;
         _hpCache = eventData.Amount;
         RefreshText();
     }
     
-    private void HandleStatChange(PlayerGameValueChangeEvent<StatType> eventData)
+    protected virtual void HandleStatChange(PlayerGameValueChangeEvent<StatType> eventData)
     {
         if (eventData.ValueType != StatType.MaxHP) return;
         _maxHPCache = eventData.Amount;
@@ -47,6 +44,7 @@ public class HealthWidget : MonoBehaviour
     private void RefreshText()
     {
         if (_maxHPCache <= 0) return;
+        if(_slider == null) return;
         _slider.value = Mathf.Clamp01(_hpCache / _maxHPCache);
         _hpText.text = $"{_hpCache:N0} / {_maxHPCache:N0}";
     }

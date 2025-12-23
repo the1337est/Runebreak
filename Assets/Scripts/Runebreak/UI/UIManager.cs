@@ -1,9 +1,6 @@
-using System;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [DefaultExecutionOrder(-50)]
@@ -20,7 +17,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _playerDeathContainer;
     [SerializeField] private TextMeshProUGUI _waveText;
     [SerializeField] private TextMeshProUGUI _timerText;
-    [SerializeField] private Button _nextWaveButton;
 
     [SerializeField] private Button _returnToMenuButton;
     
@@ -28,6 +24,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _pauseMenuContainer;
     [SerializeField] private Button _resumeButton;
     
+    [SerializeField] private WaveEndScreen _waveEndScreen;
+    [SerializeField] private GameFinishedScreen _gameFinishedScreen;
     
     public static UIManager Instance { get; private set; }
     
@@ -45,29 +43,36 @@ public class UIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        _nextWaveButton.onClick.AddListener(HandleNextWaveClicked);
         _returnToMenuButton.onClick.AddListener(HandleReturnToMenuClicked);
         
         EventBus.Subscribe<TimerUpdateEvent>(HandleTimerUpdate);
         EventBus.Subscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
+        EventBus.Subscribe<GameEndEvent>(HandleGameEnd);
         
         EventBus.Subscribe<PlayerDeathEvent>(HandlePlayerDeath);
+        EventBus.Subscribe<ReturnToMenuEvent>(HandleReturnToMenu);
     }
 
     private void OnDisable()
     {
-        _nextWaveButton.onClick.RemoveListener(HandleNextWaveClicked);
         _returnToMenuButton.onClick.RemoveListener(HandleReturnToMenuClicked);
         
         EventBus.Unsubscribe<TimerUpdateEvent>(HandleTimerUpdate);
         EventBus.Unsubscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Unsubscribe<WaveEndEvent>(HandleWaveEnd);
+        EventBus.Unsubscribe<GameEndEvent>(HandleGameEnd);
         
         EventBus.Unsubscribe<PlayerDeathEvent>(HandlePlayerDeath);
+        EventBus.Unsubscribe<ReturnToMenuEvent>(HandleReturnToMenu);
     }
 
     private void HandleReturnToMenuClicked()
+    {
+        SceneManager.LoadScene("Menu");
+    }
+    
+    private void HandleReturnToMenu(ReturnToMenuEvent eventData)
     {
         SceneManager.LoadScene("Menu");
     }
@@ -86,7 +91,12 @@ public class UIManager : MonoBehaviour
     private void HandleWaveEnd(WaveEndEvent eventData)
     {
         ResetText();
-        // _waveSetupContainer.SetActive(true);
+        _waveEndScreen.Show();
+    }
+    
+    private void HandleGameEnd(GameEndEvent obj)
+    {
+        _gameFinishedScreen.Show();
     }
 
     private void HandleTimerUpdate(TimerUpdateEvent eventData)

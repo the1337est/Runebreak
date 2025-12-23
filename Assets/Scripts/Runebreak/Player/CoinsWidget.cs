@@ -1,6 +1,4 @@
-using System;
 using TMPro;
-using UnityEditor.Search;
 using UnityEngine;
 
 public class CoinsWidget : MonoBehaviour

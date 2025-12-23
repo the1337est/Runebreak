@@ -1,10 +1,7 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
-using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
@@ -128,7 +125,7 @@ public class LevelManager : MonoBehaviour
         _waveIndex++;
         if (_waveIndex >= _waves.Count)
         {
-            Debug.Log("End of waves reached!");
+            EventBus.Publish(new GameEndEvent());
             return;
         }
 
@@ -138,7 +135,7 @@ public class LevelManager : MonoBehaviour
         _nextFloor.Initialize(GetNextWave());
         LoadWave(_currentWave);
         IsWaveActive = true;
-        WaveTick();
+        StartCoroutine(WaveTick());
         _nextSpawnTime = Time.time + _initialDelay;
         EventBus.Publish(new WaveStartEvent(_waveIndex+1));
     }
@@ -149,15 +146,24 @@ public class LevelManager : MonoBehaviour
         _waveEnemiesCache = wave.EnemyProbilities.Select(e => (e.Enemy, e.Probability)).ToList();
     }
     
-    private async Task WaveTick()
+    private IEnumerator WaveTick()
     {
-        if (!IsWaveActive) return;
-        EventBus.Publish(new TimerUpdateEvent(_timer));
-        await Task.Delay(1000);
-        _timer -= 1;
-        if (_timer >= 1)
+        if (!IsWaveActive) yield break;
+        while (_timer >= 1)
         {
-            WaveTick();
+            _timer -= 1;
+            EventBus.Publish(new TimerUpdateEvent(_timer));
+            yield return new WaitForSeconds(1f);
+        }
+        ProcessEnd();
+    }
+
+    private void ProcessEnd()
+    {
+        if (_waveIndex >= _waves.Count-1)
+        {
+            IsWaveActive = false;
+            EventBus.Publish(new GameEndEvent());
         }
         else
         {
@@ -167,17 +173,22 @@ public class LevelManager : MonoBehaviour
 
     private void EndWave()
     {
-        //remove all alive enemies
+        StopCoroutine(SpawnEnemyRandomDelay());
+        IsWaveActive = false;
+        EnableNextLevel();
+        ClearAllEnemies();
+        EventBus.Publish(new TimerUpdateEvent(_timer));
+        EventBus.Publish(new WaveEndEvent());
+    }
+
+    private void ClearAllEnemies()
+    {
+        if (_aliveEnemies == null) return;
         for (int i = _aliveEnemies.Count - 1; i >= 0; i--)
         {
             Destroy(_aliveEnemies[i].gameObject);
         }
         _aliveEnemies.Clear();
-        //return player to the center
-        IsWaveActive = false;
-        EnableNextLevel();
-        EventBus.Publish(new TimerUpdateEvent(_timer));
-        EventBus.Publish(new WaveEndEvent());
     }
 
     private void EnableNextLevel()
@@ -196,7 +207,7 @@ public class LevelManager : MonoBehaviour
 
         if (Time.time >= _nextSpawnTime)
         {
-            SpawnEnemy();
+            StartCoroutine(SpawnEnemyRandomDelay());
             _nextSpawnTime = Time.time + _spawnInterval;
         }
     }
@@ -205,38 +216,26 @@ public class LevelManager : MonoBehaviour
     {
         ProcessWaveUpdate();
     }
-
-    private CancellationTokenSource _cts;
     
-    private async void SpawnEnemy()
+    private IEnumerator SpawnEnemyRandomDelay()
     {
         var count = GameMath.GetBiasedInt(_currentWave.MinSpawnCount, _currentWave.MaxSpawnCount, _currentWave.SpawnCountBias);
-        _cts = new CancellationTokenSource();   
         for (int i = 0; i < count; i++)
         {
-            try
-            {
-                var prefab = GameMath.GetWeightedPrefab(_waveEnemiesCache);
-                var position = new Vector2(Random.Range(-_worldSize.x / 2f, _worldSize.x / 2f),
-                    Random.Range(-_worldSize.y / 2f, _worldSize.y / 2f));
-
-                _cts.Token.ThrowIfCancellationRequested();
-                if (!this || !gameObject.activeInHierarchy) return;
-
-                var spawn = Instantiate(_spawnPrefab, position, Quaternion.identity);
-                spawn.Init(prefab, position);
-                var delay = Random.Range(50, 250);
-                await Task.Delay(delay, _cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                
-            }
+            if(gameObject == null) yield break;
+            var prefab = GameMath.GetWeightedPrefab(_waveEnemiesCache);
+            var position = new Vector2(Random.Range(-_worldSize.x / 2f, _worldSize.x / 2f),
+                Random.Range(-_worldSize.y / 2f, _worldSize.y / 2f));
+            var spawn = Instantiate(_spawnPrefab, position, Quaternion.identity);
+            spawn.Init(prefab, position);
+            var delay = Random.Range(0.02f, 0.1f);
+            yield return new WaitForSeconds(delay);
+            
         }
-        _cts?.Cancel();
-        _cts?.Dispose();
-        _cts = null;
+
+        yield return null;
     }
+
 
     private void HandleEnemySpawn(EnemySpawnEvent eventData)
     {
@@ -264,6 +263,6 @@ public class LevelManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        _cts?.Cancel();
+        StopAllCoroutines();
     }
 }

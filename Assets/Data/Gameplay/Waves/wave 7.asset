@@ -16,8 +16,8 @@ MonoBehaviour:
   FloorSprite: {fileID: 2031947269, guid: f3b79ce582a21384aa98781ac2e7249d, type: 3}
   WallSprite: {fileID: 0}
   SpawnInterval: 0.72
-  MinSpawnCount: 6
-  MaxSpawnCount: 9
+  MinSpawnCount: 5
+  MaxSpawnCount: 8
   SpawnCountBias: 0.65
   EnemyProbilities:
   - Enemy: {fileID: 628972687785303700, guid: 3b90be2e199ae5b41bc33dd7fc4ea64e, type: 3}

@@ -1,10 +1,6 @@
-
-using System;
 using System.Collections.Generic;
-using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 using Random = UnityEngine.Random;
 
 public class Shop : Interactable
@@ -52,9 +48,11 @@ public class Shop : Interactable
         InteractionAllowed = true;
     }
     
-    private void HandleWaveStart(WaveStartEvent obj)
+    private void HandleWaveStart(WaveStartEvent eventData)
     {
         InteractionAllowed = false;
+        _rerollCost = eventData.WaveIndex;
+        GenerateNewItems();
     }
     
     private void HandleResourceChange(PlayerGameValueChangeEvent<ResourceType> eventData)

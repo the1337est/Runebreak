@@ -1,15 +1,16 @@
-using System;
 using UnityEngine;
 
 public class Pickup : MonoBehaviour
 {
-    [SerializeField] float _baseFlySpeed = 12f;
-    [SerializeField] float _maxFlySpeed = 40f;
-    [SerializeField] float _maxSpeedDistance = 8f; // how far before we hit max speed
-
     private Transform _target;
     private float _collectRadiusSqr;
 
+    private int _amount;
+
+    private float _currentSpeed;
+    private float _maxFlySpeed;
+    private float _acceleration = 10f;
+    
     public bool IsFlying { get; private set; }
     public Vector3 Position => transform.position;
 
@@ -25,8 +26,15 @@ public class Pickup : MonoBehaviour
         PickupManager.Instance.Unregister(this);
     }
 
-    public void BeginFlyTo(Transform target, float collectRadius)
+    public void Init(int amount)
     {
+        _amount = amount;
+    }
+
+    public void BeginFlyTo(Transform target, float collectRadius, float startSpeed)
+    {
+        _currentSpeed = startSpeed;
+        _maxFlySpeed = startSpeed * 3f;
         _target = target;
         _collectRadiusSqr = collectRadius * collectRadius;
         IsFlying = true;
@@ -34,32 +42,33 @@ public class Pickup : MonoBehaviour
 
     private void Update()
     {
-        if (!IsFlying || !_target) return;
+        if (!IsFlying || !_target) 
+        {
+            return;
+        }
 
         Vector3 pos = transform.position;
         Vector3 toTarget = _target.position - pos;
-        float dist = toTarget.magnitude;
-
-        // If we reached collect radius, collect
-        if (dist * dist <= _collectRadiusSqr)
+        float distSq = toTarget.sqrMagnitude;
+        
+        if (distSq <= _collectRadiusSqr)
         {
             Collect();
             return;
         }
-
-        // Speed scales with distance so far-away pickups zoom in faster
-        float t = Mathf.InverseLerp(0f, _maxSpeedDistance, dist);
-        float speed = Mathf.Lerp(_baseFlySpeed, _maxFlySpeed, t);
-
-        Vector3 step = toTarget.normalized * speed * Time.deltaTime;
+        
+        _currentSpeed += _acceleration * Time.deltaTime;
+        _currentSpeed = Mathf.Min(_currentSpeed, _maxFlySpeed);
+        
+        Vector3 step = toTarget.normalized * _currentSpeed * Time.deltaTime;
         transform.position = pos + step;
     }
 
     private void Collect()
     {
-        EventBus.Publish(new PickupEvent(PickupType.Coin, 1));
+        EventBus.Publish(new PickupEvent(PickupType.Coin, _amount));
 
         IsFlying = false;
-        gameObject.SetActive(false); // or return to pool explicitly
+        gameObject.SetActive(false);
     }
 }

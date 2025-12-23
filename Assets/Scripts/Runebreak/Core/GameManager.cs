@@ -47,7 +47,6 @@ public class GameManager : MonoBehaviour
             default:
                 throw new ArgumentOutOfRangeException(nameof(actionMapType), actionMapType, null);
         }
-        Debug.Log("EnableInputActions called");
     }
 
     private void OnEnable()

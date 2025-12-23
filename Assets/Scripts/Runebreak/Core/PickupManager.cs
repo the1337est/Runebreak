@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -10,6 +9,7 @@ public class PickupManager : MonoBehaviour
     [Header("Prefabs")] [SerializeField] private Pickup _coinPrefab;
 
     private float _magnetRadius;
+    private float _startFlySpeed;
     [SerializeField] private float _collectRadius = 0.2f;
     [SerializeField] float _checkInterval = 0.1f;
 
@@ -50,8 +50,18 @@ public class PickupManager : MonoBehaviour
 
     private void HandleStatChange(PlayerGameValueChangeEvent<StatType> eventData)
     {
-        if(eventData.ValueType != StatType.PickupRange) return;
-        _magnetRadius = eventData.Amount;
+        if(eventData.ValueType == StatType.PickupRange) SetMagnetRadius(eventData.Amount);
+        if(eventData.ValueType == StatType.Speed) SetStartFlySpeed(eventData.Amount);
+    }
+
+    private void SetMagnetRadius(float radius)
+    {
+        _magnetRadius = radius;
+    }
+    
+    private void SetStartFlySpeed(float amount)
+    {
+        _startFlySpeed = amount;
     }
 
     public void Register(Pickup pickup)
@@ -66,8 +76,8 @@ public class PickupManager : MonoBehaviour
 
     private void SpawnCoin(Vector3 position, int count)
     {
-        //todo: do something with count: either spread multiple pickups, or spawn a bigger pickup
         var coin = Instantiate(_coinPrefab, position, Quaternion.identity);
+        coin.Init(count);
         coin.transform.SetParent(transform);
         Register(coin);
     }
@@ -89,7 +99,7 @@ public class PickupManager : MonoBehaviour
             Vector3 diff = pickup.Position - playerPos;
             if (diff.sqrMagnitude <= magnetRadiusSqr)
             {
-                pickup.BeginFlyTo(_player, _collectRadius);
+                pickup.BeginFlyTo(_player, _collectRadius, _startFlySpeed);
             }
         }
     }

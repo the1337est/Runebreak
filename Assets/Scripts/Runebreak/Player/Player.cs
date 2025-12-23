@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 [DefaultExecutionOrder(-10)]
 public class Player : MonoBehaviour
@@ -25,11 +23,12 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerBullet _bulletPrefab;
     [SerializeField] private Transform _bulletOrigin;
     
-    [Header("Base Stat Values")]
+    [Header("Stats Cache")]
     [SerializeField] private float _range = 5f;
     [SerializeField] private float _moveSpeed;
     [SerializeField] private float _attackInterval = 1f;
     [SerializeField] private float _projectileSpeed = 12f;
+    [SerializeField] private float _hpRegen = 0f;
     
     private float _nextAttackTime = 0f;
 
@@ -42,6 +41,8 @@ public class Player : MonoBehaviour
     private bool _allowPastRightBorder;
 
     private Vector2 _worldSize;
+
+    [SerializeField] private GameObject _healthWidgetWorld;
     
     private void Awake()
     {
@@ -77,6 +78,8 @@ public class Player : MonoBehaviour
         EventBus.Subscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Subscribe<ShopBuyEvent>(HandleShopBuyEvent);
         
+        EventBus.Subscribe<GameEndEvent>(HandleGameEnd);
+        
         EventBus.Subscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
         EventBus.Subscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
         EventBus.Subscribe<PlayerGameValueRequestEvent<ResourceType>>(HandlePlayerResourceRequest);
@@ -91,6 +94,8 @@ public class Player : MonoBehaviour
         EventBus.Unsubscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Unsubscribe<ShopBuyEvent>(HandleShopBuyEvent);
         
+        EventBus.Unsubscribe<GameEndEvent>(HandleGameEnd);
+        
         EventBus.Unsubscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
         
         EventBus.Unsubscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
@@ -102,6 +107,7 @@ public class Player : MonoBehaviour
         if(!CanControl()) return;
         MovementUpdate();
         AttackUpdate();
+        RegenUpdate();
     }
 
     private void AttackUpdate()
@@ -110,6 +116,16 @@ public class Player : MonoBehaviour
         {
             Attack();
         }
+    }
+    
+    private void RegenUpdate()
+    {
+        if (_hpRegen <= 0f) return;
+        var hp = Resources.Get(ResourceType.HP);
+        var maxHp = Stats.Get(StatType.MaxHP);
+        hp += _hpRegen * Time.deltaTime;
+        hp = Mathf.Clamp(hp, 0, maxHp);
+        Resources.Set(ResourceType.HP, hp);
     }
     
     private void HandleWaveStart(WaveStartEvent eventData)
@@ -164,6 +180,11 @@ public class Player : MonoBehaviour
         _allowPastRightBorder = true;
     }
     
+    private void HandleGameEnd(GameEndEvent eventData)
+    {
+        State = PlayerState.None;
+    }
+    
     private void HandleEnemyAttack(EnemyAttackEvent eventData)
     {
         //TODO: do immunity, dodge and armour calculations here
@@ -209,6 +230,7 @@ public class Player : MonoBehaviour
             case StatType.Dodge:
                 break;
             case StatType.HPRegen:
+                _hpRegen = eventData.Amount;
                 break;
             case StatType.LifeSteal:
                 break;
@@ -293,8 +315,11 @@ public class Player : MonoBehaviour
                 bullet = Instantiate(_bulletPrefab, transform.position, Quaternion.identity);
                 _bullets.Add(bullet);
             }
+
+            var damage = Stats.Get(StatType.Damage);
             bullet.transform.position = _bulletOrigin.position;
-            bullet.Fire(bestEnemy.transform.position - _bulletOrigin.position, _projectileSpeed, 10f, _range);
+            bullet.Fire(bestEnemy.transform.position - _bulletOrigin.position, _projectileSpeed, damage, _range);
+            EventBus.Publish(new PlayerAttackEvent());
         }
     }
 

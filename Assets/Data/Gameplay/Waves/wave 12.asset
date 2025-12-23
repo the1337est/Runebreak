@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec3fa588776fb8a4995c13678e3abdad, type: 3}
+  m_Name: wave 12
+  m_EditorClassIdentifier: Assembly-CSharp::WaveData
+  Time: 75
+  FloorSprite: {fileID: 2031947269, guid: f3b79ce582a21384aa98781ac2e7249d, type: 3}
+  WallSprite: {fileID: 0}
+  SpawnInterval: 0.55
+  MinSpawnCount: 9
+  MaxSpawnCount: 12
+  SpawnCountBias: 0.8
+  EnemyProbilities:
+  - Enemy: {fileID: 628972687785303700, guid: 3b90be2e199ae5b41bc33dd7fc4ea64e, type: 3}
+    Probability: 20
+  - Enemy: {fileID: 4138040129216394171, guid: 82799433814c2274fbbb1c8259ad3035, type: 3}
+    Probability: 20
+  - Enemy: {fileID: -3632298050084859913, guid: 00c00ace48f177941b0f4c1ff7a6ce9c, type: 3}
+    Probability: 20
+  - Enemy: {fileID: -3632298050084859913, guid: becacc9f78a5864458de214fba54a075, type: 3}
+    Probability: 14
+  - Enemy: {fileID: -3632298050084859913, guid: bc62ee5e724afaf44813444457584715, type: 3}
+    Probability: 13
+  - Enemy: {fileID: -3632298050084859913, guid: 9e38c283dc15b6d41930069f784d2f42, type: 3}
+    Probability: 13

@@ -53,5 +53,9 @@ public class PlayerPositionSnapEvent : IGameEvent
         Offset = offset;
     }
 }
-        
+
+public class PlayerAttackEvent : IGameEvent
+{
+    
+}
 

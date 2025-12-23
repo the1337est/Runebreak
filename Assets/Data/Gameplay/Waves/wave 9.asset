@@ -17,7 +17,7 @@ MonoBehaviour:
   WallSprite: {fileID: 0}
   SpawnInterval: 0.62
   MinSpawnCount: 7
-  MaxSpawnCount: 11
+  MaxSpawnCount: 10
   SpawnCountBias: 0.75
   EnemyProbilities:
   - Enemy: {fileID: 628972687785303700, guid: 3b90be2e199ae5b41bc33dd7fc4ea64e, type: 3}

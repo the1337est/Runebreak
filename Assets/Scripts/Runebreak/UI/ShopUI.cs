@@ -1,9 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
-using UnityEditor.Overlays;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class ShopUI : MonoBehaviour
@@ -50,6 +49,15 @@ public class ShopUI : MonoBehaviour
         {
             _shopCards.Remove(eventdata.Card);
             Destroy(eventdata.Card.gameObject);
+        }
+
+        if (_shopCards.Count == 0)
+        {
+            EventSystem.current.SetSelectedGameObject(_rerollButton.gameObject);
+        }
+        else
+        {
+            StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
         }
     }
 
