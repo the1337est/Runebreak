@@ -292,7 +292,7 @@ MonoBehaviour:
   _moveSpeed: 2.2
   _separation: 0.6
   _attackInterval: 1.5
-  _attackRange: 0.75
+  _attackRange: 1.25
   _damage: 3
   IsAlive: 0
   _spriteRenderer: {fileID: 8199671465021320232}

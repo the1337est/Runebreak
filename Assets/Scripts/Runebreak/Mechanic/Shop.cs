@@ -12,6 +12,11 @@ public class Shop : Interactable
     [Header("Items")]
     [SerializeField] private List<UpgradeSO> _allItems;
     
+    [Header("Progression")]
+    [SerializeField] private List<ShopOddsProfile> _progressionOdds;
+    
+    private int _currentWaveIndex = 1;
+    
     private List<UpgradeSO> _activeItems = new();
     private List<UpgradeSO> _commonItems = new();
     private List<UpgradeSO> _uncommonItems = new();
@@ -22,7 +27,7 @@ public class Shop : Interactable
     private int _rerollCost = 1;
     private bool _nextRerollFree = false;
 
-    private void Start()
+    private void Awake()
     {
         ProcessItems();
     }
@@ -36,8 +41,6 @@ public class Shop : Interactable
         EventBus.Subscribe<ShopBuyEvent>(HandleShopBuy);
         EventBus.Subscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
     }
-
-    
 
     protected override void OnDisable()
     {
@@ -56,6 +59,7 @@ public class Shop : Interactable
     private void HandleWaveStart(WaveStartEvent eventData)
     {
         InteractionAllowed = false;
+        _currentWaveIndex = eventData.WaveIndex;
         _rerollCost = eventData.WaveIndex;
         GenerateNewItems();
     }
@@ -90,12 +94,6 @@ public class Shop : Interactable
             var coins = Player.Instance.Resources.Get(ResourceType.Coins);
             _shopUI.Refresh((int)coins, 0);
         }
-    }
-    
-    private UpgradeSO GetRandomItem()
-    {
-        var index = Random.Range(0, _allItems.Count);
-        return _allItems[index];
     }
     
     private UpgradeSO GetRandomItem(Rarity rarity)
@@ -161,7 +159,7 @@ public class Shop : Interactable
         _activeItems.Clear();
         for (int i = 0; i < _itemCount; i++)
         {
-            var item = GetRandomItem();
+            var item = GetProgressionBasedItem();
             _activeItems.Add(item);
         }
         EventBus.Publish(new ShopItemUpdateEvent(_activeItems));
@@ -174,4 +172,44 @@ public class Shop : Interactable
         var cost = _nextRerollFree ? 0 : _rerollCost;
         _shopUI.Refresh((int)Player.Instance.Resources.Get(ResourceType.Coins), cost);
     }
+    
+    private UpgradeSO GetProgressionBasedItem()
+    {
+        var targetRarity = RollRarityForWave(_currentWaveIndex);
+        while (GetList(targetRarity).Count == 0 && targetRarity > Rarity.Common)
+        {
+            targetRarity--;
+        }
+
+        return GetRandomItem(targetRarity);
+    }
+
+    private Rarity RollRarityForWave(int wave)
+    {
+        var activeProfile = _progressionOdds[0]; 
+        
+        foreach (var profile in _progressionOdds)
+        {
+            if (wave >= profile.MinWave)
+            {
+                activeProfile = profile;
+            }
+        }
+        
+        var totalWeight = activeProfile.CommonWeight + 
+                            activeProfile.UncommonWeight + 
+                            activeProfile.RareWeight + 
+                            activeProfile.EpicWeight + 
+                            activeProfile.LegendaryWeight;
+        
+        var randomValue = Random.Range(0f, totalWeight);
+
+        if ((randomValue -= activeProfile.CommonWeight) < 0) return Rarity.Common;
+        if ((randomValue -= activeProfile.UncommonWeight) < 0) return Rarity.Uncommon;
+        if ((randomValue -= activeProfile.RareWeight) < 0) return Rarity.Rare;
+        if ((randomValue -= activeProfile.EpicWeight) < 0) return Rarity.Epic;
+        
+        return Rarity.Legendary;
+    }
+    
 }

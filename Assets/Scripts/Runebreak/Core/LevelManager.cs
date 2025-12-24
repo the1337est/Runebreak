@@ -215,8 +215,20 @@ public class LevelManager : MonoBehaviour
     private void Update()
     {
         ProcessWaveUpdate();
+        #if UNITY_EDITOR
+        CheatsUpdate();
+        #endif   
     }
-    
+
+    private void CheatsUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            _timer = 0;
+            if(IsWaveActive) EndWave();
+        }
+    }
+
     private IEnumerator SpawnEnemyRandomDelay()
     {
         var count = GameMath.GetBiasedInt(_currentWave.MinSpawnCount, _currentWave.MaxSpawnCount, _currentWave.SpawnCountBias);
