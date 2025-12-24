@@ -35,16 +35,17 @@ public class Shop : Interactable
     protected override void OnEnable()
     {
         base.OnEnable();
+        EventBus.Subscribe<ShopBuyEvent>(HandleShopBuy);
         EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Subscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Subscribe<ShopRerollRequestEvent>(HandleShopReroll);
-        EventBus.Subscribe<ShopBuyEvent>(HandleShopBuy);
         EventBus.Subscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
     }
 
     protected override void OnDisable()
     {
         base.OnDisable();
+        EventBus.Unsubscribe<ShopBuyEvent>(HandleShopBuy);
         EventBus.Unsubscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Unsubscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Unsubscribe<ShopRerollRequestEvent>(HandleShopReroll);

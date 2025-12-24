@@ -231,11 +231,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
   _maxHealth: 70
   _coinsOnDeath: 7
-  _moveSpeed: 3
+  _moveSpeed: 3.2
+  _dashSpeed: 5.2
   _separation: 0.9
   _attackInterval: 2.2
   _attackRange: 2.5
   _damage: 6
+  _dashInterval: 3
+  _dashDuration: 1
   IsAlive: 0
   _spriteRenderer: {fileID: 2487458030467496699}
 --- !u!58 &5695137772743246556

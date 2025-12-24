@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: up-regen-5-legendary-5 2
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
   Name: HP Regen V
-  BaseCost: 50
+  BaseCost: 200
   Rarity: 4
   Stackable: 1
   Changes:

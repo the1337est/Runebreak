@@ -3388,7 +3388,7 @@ MonoBehaviour:
   _enemy2Prefab: {fileID: 4138040129216394171, guid: 82799433814c2274fbbb1c8259ad3035, type: 3}
   _initialDelay: 1
   _spawnInterval: 1.2
-  _maxAliveEnemies: 200
+  _maxAliveEnemies: 400
   _waves:
   - {fileID: 11400000, guid: a1fa92b295a0e5541825d86b12bb5237, type: 2}
   - {fileID: 11400000, guid: de047ffc480ef3c48b8ca7f892bcec69, type: 2}

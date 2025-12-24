@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: up-pickuprange-4-epic-4
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
   Name: Pickup Range IV
-  BaseCost: 25
+  BaseCost: 100
   Rarity: 3
   Stackable: 1
   Changes:

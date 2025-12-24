@@ -79,12 +79,16 @@ public class Player : MonoBehaviour
         EventBus.Subscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Subscribe<ShopBuyEvent>(HandleShopBuyEvent);
         
+        EventBus.Subscribe<TimerUpdateEvent>(HandleTimerUpdate);
+        
         EventBus.Subscribe<GameEndEvent>(HandleGameEnd);
         
         EventBus.Subscribe<PlayerGameValueChangeEvent<StatType>>(HandlePlayerStatChange);
         EventBus.Subscribe<PlayerGameValueRequestEvent<StatType>>(HandlePlayerStatRequest);
         EventBus.Subscribe<PlayerGameValueRequestEvent<ResourceType>>(HandlePlayerResourceRequest);
     }
+
+    
 
     private void OnDisable()
     {
@@ -94,6 +98,7 @@ public class Player : MonoBehaviour
         EventBus.Unsubscribe<PickupEvent>(HandlePickupEvent);
         EventBus.Unsubscribe<ShopCoinsSpentEvent>(HandleShopCoinsSpent);
         EventBus.Unsubscribe<ShopBuyEvent>(HandleShopBuyEvent);
+        EventBus.Unsubscribe<TimerUpdateEvent>(HandleTimerUpdate);
         
         EventBus.Unsubscribe<GameEndEvent>(HandleGameEnd);
         
@@ -108,7 +113,6 @@ public class Player : MonoBehaviour
         if(!CanControl()) return;
         MovementUpdate();
         AttackUpdate();
-        RegenUpdate();
 #if UNITY_EDITOR
         CheatsUpdate();
 #endif
@@ -135,12 +139,13 @@ public class Player : MonoBehaviour
         }
     }
     
-    private void RegenUpdate()
+    private void HandleTimerUpdate(TimerUpdateEvent eventData)
     {
         if (_hpRegen <= 0f) return;
         var hp = Resources.Get(ResourceType.HP);
         var maxHp = Stats.Get(StatType.MaxHP);
-        hp += _hpRegen * Time.deltaTime;
+        if (hp >= maxHp) return;
+        hp += _hpRegen;
         hp = Mathf.Clamp(hp, 0, maxHp);
         Resources.Set(ResourceType.HP, hp);
     }

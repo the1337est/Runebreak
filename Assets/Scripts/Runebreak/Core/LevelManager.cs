@@ -42,7 +42,6 @@ public class LevelManager : MonoBehaviour
 
     [SerializeField] private StatsSO _playerBaseStats;
     
-    
     public bool IsWaveActive { get; private set; }
 
     [FormerlySerializedAs("_floor")] [SerializeField] private CurrentFloor currentFloor;

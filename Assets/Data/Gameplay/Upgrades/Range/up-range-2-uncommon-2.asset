@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: up-range-2-uncommon-2
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
   Name: Attack Range II
-  BaseCost: 8
+  BaseCost: 20
   Rarity: 1
   Stackable: 1
   Changes:

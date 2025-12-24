@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: up-pickuprange-1-common-1
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
   Name: Pickup Range I
-  BaseCost: 5
+  BaseCost: 8
   Rarity: 0
   Stackable: 1
   Changes:

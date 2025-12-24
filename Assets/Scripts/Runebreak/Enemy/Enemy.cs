@@ -14,10 +14,21 @@ public class Enemy : MonoBehaviour
     [SerializeField] protected int _coinsOnDeath = 1;
 
     [SerializeField] protected float _moveSpeed = 4f;
+    [SerializeField] protected float _dashSpeed;
     [SerializeField] protected float _separation = 0.25f;
     [SerializeField] protected float _attackInterval = 1f;
     [SerializeField] protected float _attackRange;
     [SerializeField] protected float _damage;
+
+    
+    [SerializeField] protected float _dashInterval;
+    [SerializeField] protected float _dashDuration;
+
+    private float _dashEndTime;
+    
+    private bool _isDashing = false;
+    
+    private float _nextDashTime;
     
     private float _currentHealth;
     private float _nextAttackTime;
@@ -31,13 +42,14 @@ public class Enemy : MonoBehaviour
     private bool _waveActive;
     
     [SerializeField] private SpriteRenderer _spriteRenderer;
-
+    
     private bool _movementLock = false;
     public void Init()
     {
         _currentHealth = _maxHealth;
         Target = Player.Instance;
         _nextAttackTime = Time.time + _attackInterval;
+        _nextDashTime = Time.time + Random.Range(0f, 3f) + _dashInterval;
         IsAlive = true;
         _attackRangeSqr = _attackRange * _attackRange;
         _movementLock = true;
@@ -64,17 +76,33 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
+        DashUpdate();
         MovementUpdate();
         AttackUpdate();
+    }
+
+    private void DashUpdate()
+    {
+        if (!_isDashing) return;
+        if (!(Time.time >= _dashEndTime)) return;
+        _isDashing = false;
+        _nextDashTime = Time.time + Random.Range(0f, 1f) + _dashInterval;
     }
 
     private void MovementUpdate()
     {
         if (!CanMove()) return;
+        var maxDelta = _moveSpeed * Time.deltaTime;
+        if (!_isDashing && Time.time >= _nextDashTime)
+        {
+            _isDashing = true;
+            _dashEndTime = Time.time + _dashDuration;
+            maxDelta = _dashSpeed * Time.deltaTime;
+        }
         transform.position = Vector3.MoveTowards(
             transform.position + GetSeparation(),
             Target.transform.position,
-            Time.deltaTime * _moveSpeed
+            maxDelta
         );
         var p = transform.position;
         transform.position = new Vector3(LevelManager.Instance.GetClampedX(p.x), LevelManager.Instance.GetClampedY(p.y), p.z);

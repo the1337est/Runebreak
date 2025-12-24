@@ -289,11 +289,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MeleeEnemy
   _maxHealth: 15
   _coinsOnDeath: 2
-  _moveSpeed: 2.2
+  _moveSpeed: 3
+  _dashSpeed: 5
   _separation: 0.6
   _attackInterval: 1.5
   _attackRange: 1.25
   _damage: 3
+  _dashInterval: 3
+  _dashDuration: 1
   IsAlive: 0
   _spriteRenderer: {fileID: 8199671465021320232}
 --- !u!1001 &7175038729265515282
