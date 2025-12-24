@@ -72,8 +72,9 @@ public class GameManager : MonoBehaviour
         switch (scene.name)
         {
             case _menuSceneName:
-                EventBus.Publish(new MenuSceneEnterEvent());
+                EventBus.Publish(new MenuScreenEnterEvent(MenuScreenID.Main));
                 break;
+            
             case _gameSceneName:
                 EventBus.Publish(new GameSceneEnterEvent());
                 break;

@@ -115,7 +115,7 @@ MonoBehaviour:
     m_NormalTrigger: Normal
     m_HighlightedTrigger: Highlighted
     m_PressedTrigger: Pressed
-    m_SelectedTrigger: Selected
+    m_SelectedTrigger: Highlighted
     m_DisabledTrigger: Disabled
   m_Interactable: 1
   m_TargetGraphic: {fileID: 2217523273360163722}
@@ -209,10 +209,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Button
+  m_text: Start
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7d2beb291b8cef744a8893e697e92c3b, type: 2}
-  m_sharedMaterial: {fileID: 8290803960817453384, guid: 7d2beb291b8cef744a8893e697e92c3b, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 4bcc30370c50a504f8864009d9e42ae2, type: 2}
+  m_sharedMaterial: {fileID: 6468455094981213111, guid: 4bcc30370c50a504f8864009d9e42ae2, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -242,8 +242,8 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
-  m_HorizontalAlignment: 2
+  m_fontStyle: 16
+  m_HorizontalAlignment: 1
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0

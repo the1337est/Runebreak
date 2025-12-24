@@ -1715,6 +1715,7 @@ MonoBehaviour:
   _shopCardPrefab: {fileID: 4353538407026672536, guid: 7a1db56e09c9d9f48b1649e9cede1c45, type: 3}
   _cardContainer: {fileID: 241166310}
   _rerollButton: {fileID: 410369975}
+  _itemColorConfig: {fileID: 11400000, guid: 05a0579ae64d8fb408e2730fca79a144, type: 2}
   _rerollCostText: {fileID: 655749101}
 --- !u!1 &491363689
 GameObject:

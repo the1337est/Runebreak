@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine;
@@ -108,6 +109,22 @@ public class Player : MonoBehaviour
         MovementUpdate();
         AttackUpdate();
         RegenUpdate();
+#if UNITY_EDITOR
+        CheatsUpdate();
+#endif
+    }
+
+    private void CheatsUpdate()
+    {
+        if (Input.GetKeyDown(KeyCode.C))
+        {
+            var c = Resources.Get(ResourceType.Coins);
+            Resources.Set(ResourceType.Coins, c + 100);
+        }
+        if (Input.GetKeyDown(KeyCode.Z))
+        {
+            ProcessChange(new StatChange(StatType.AttackSpeed, 10f, StatChangeType.Percent));
+        }
     }
 
     private void AttackUpdate()

@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c273806feac3ae94d8fc4fa309019c8c, type: 3}
   m_Name: up-speed-4-epic-4
   m_EditorClassIdentifier: Assembly-CSharp::UpgradeSO
-  Name: Speed V
+  Name: Speed IV
   BaseCost: 25
   Rarity: 3
   Stackable: 1
   Changes:
   - Stat: 2
-    Type: 0
-    Amount: 4
+    Type: 1
+    Amount: 25

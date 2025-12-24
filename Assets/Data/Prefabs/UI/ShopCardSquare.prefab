@@ -64,7 +64,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.2509804, b: 0.49411768, a: 1}
+  m_Color: {r: 0.83396226, g: 0.5257454, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -97,6 +97,8 @@ MonoBehaviour:
   _subtitleText: {fileID: 3602706145250352823}
   _descriptionText: {fileID: 7508718705269128597}
   _costText: {fileID: 957209524074273427}
+  _borderImage: {fileID: 8672748601529160035}
+  _backgroundImage: {fileID: 2313417093985544052}
   _buyButton: {fileID: 5827324529517657711}
 --- !u!1 &1646825333121240460
 GameObject:
@@ -269,7 +271,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -24}
-  m_SizeDelta: {x: -96, y: 64}
+  m_SizeDelta: {x: -64, y: 64}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!222 &1757300492398988309
 CanvasRenderer:
@@ -299,7 +301,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Superior Health
+  m_text: Pickup Range II
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4bcc30370c50a504f8864009d9e42ae2, type: 2}
   m_sharedMaterial: {fileID: 6468455094981213111, guid: 4bcc30370c50a504f8864009d9e42ae2, type: 2}
@@ -326,10 +328,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28.25
-  m_fontSizeBase: 36
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 48
   m_fontStyle: 0
@@ -641,7 +643,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.11698109, g: 0.11698109, b: 0.11698109, a: 1}
+  m_Color: {r: 0.10943389, g: 0.06935951, b: 0, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -732,8 +734,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4286040575
-  m_fontColor: {r: 1, g: 0.787706, b: 0.4666667, a: 1}
+    rgba: 4281119487
+  m_fontColor: {r: 1, g: 0.69667816, b: 0.1716981, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:

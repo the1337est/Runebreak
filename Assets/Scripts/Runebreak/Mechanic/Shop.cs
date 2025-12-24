@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -18,7 +19,8 @@ public class Shop : Interactable
     private List<UpgradeSO> _epicItems = new();
     private List<UpgradeSO> _legendaryItems = new();
 
-    private int _rerollCost;
+    private int _rerollCost = 1;
+    private bool _nextRerollFree = false;
 
     private void Start()
     {
@@ -31,9 +33,12 @@ public class Shop : Interactable
         EventBus.Subscribe<WaveEndEvent>(HandleWaveEnd);
         EventBus.Subscribe<WaveStartEvent>(HandleWaveStart);
         EventBus.Subscribe<ShopRerollRequestEvent>(HandleShopReroll);
+        EventBus.Subscribe<ShopBuyEvent>(HandleShopBuy);
         EventBus.Subscribe<PlayerGameValueChangeEvent<ResourceType>>(HandleResourceChange);
     }
+
     
+
     protected override void OnDisable()
     {
         base.OnDisable();
@@ -68,10 +73,25 @@ public class Shop : Interactable
             var list = GetList(item.Rarity);
             list.Add(item);
         }
-
-        _rerollCost = 2;
+    }
+    
+    private void HandleShopBuy(ShopBuyEvent eventData)
+    {
+        StartCoroutine(NextFrameShopCheck());
     }
 
+    private IEnumerator NextFrameShopCheck()
+    {
+        yield return new WaitForEndOfFrame();
+        if (_shopUI == null) yield break;
+        if (_shopUI.Count <= 0)
+        {
+            _nextRerollFree = true;
+            var coins = Player.Instance.Resources.Get(ResourceType.Coins);
+            _shopUI.Refresh((int)coins, 0);
+        }
+    }
+    
     private UpgradeSO GetRandomItem()
     {
         var index = Random.Range(0, _allItems.Count);
@@ -123,9 +143,17 @@ public class Shop : Interactable
 
     private void HandleShopReroll(ShopRerollRequestEvent eventData)
     {
-        EventBus.Publish(new ShopCoinsSpentEvent(_rerollCost));
+        if (!_nextRerollFree)
+        {
+            EventBus.Publish(new ShopCoinsSpentEvent(_rerollCost));
+            _rerollCost += _rerollCost;
+        }
+        else
+        {
+            _nextRerollFree = false;
+            EventBus.Publish(new ShopCoinsSpentEvent(0));
+        }
         GenerateNewItems();
-        _rerollCost += _rerollCost;
     }
     
     private void GenerateNewItems()
@@ -143,10 +171,7 @@ public class Shop : Interactable
     {
         IsActive = true;
         _shopUI.Open();
-        _shopUI.Refresh((int)Player.Instance.Resources.Get(ResourceType.Coins), _rerollCost);
-        if (_activeItems.Count <= 0)
-        {
-            GenerateNewItems();
-        }
+        var cost = _nextRerollFree ? 0 : _rerollCost;
+        _shopUI.Refresh((int)Player.Instance.Resources.Get(ResourceType.Coins), cost);
     }
 }

@@ -18,5 +18,5 @@ MonoBehaviour:
   Stackable: 1
   Changes:
   - Stat: 2
-    Type: 0
-    Amount: 3
+    Type: 1
+    Amount: 15

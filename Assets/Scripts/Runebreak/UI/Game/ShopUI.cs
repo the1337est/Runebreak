@@ -13,17 +13,33 @@ public class ShopUI : MonoBehaviour
     
     private List<ShopCard> _shopCards = new ();
     
+    [SerializeField] private ItemColorSO _itemColorConfig;
+    
     private GridLayoutGroup _gridLayoutGroup;
 
     private int _rerollCostCache;
     
     [SerializeField] private TextMeshProUGUI _rerollCostText;
+    
+    private Dictionary<Rarity, ItemColorSet> _itemColorSets;
+    
+    public int Count => _shopCards.Count;
 
     private void Awake()
     {
         _gridLayoutGroup = GetComponentInChildren<GridLayoutGroup>();
+        LoadColorSets();
     }
-    
+
+    private void LoadColorSets()
+    {
+        _itemColorSets = new Dictionary<Rarity, ItemColorSet>();
+        foreach (var item in _itemColorConfig.Data)
+        {
+            _itemColorSets.TryAdd(item.Rarity, item);
+        }
+    }
+
     private void OnEnable()
     {
         _rerollButton.onClick.AddListener(HandleRerollClick);
@@ -43,6 +59,7 @@ public class ShopUI : MonoBehaviour
         EventBus.Publish(new ShopRerollRequestEvent());
     }
 
+
     private void HandleShopCardDispose(ShopCardDisposeEvent eventdata)
     {
         if (eventdata.Card != null && _shopCards.Contains(eventdata.Card))
@@ -57,7 +74,7 @@ public class ShopUI : MonoBehaviour
         }
         else
         {
-            StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
+            StartCoroutine(SelectShopCardNextFrame(_shopCards[0]));
         }
     }
 
@@ -78,7 +95,7 @@ public class ShopUI : MonoBehaviour
         {
             if (i < items.Count)
             {
-                _shopCards[i].Set(items[i]);
+                _shopCards[i].Set(items[i], _itemColorSets[items[i].Rarity]);
             }
             else
             {
@@ -89,20 +106,26 @@ public class ShopUI : MonoBehaviour
 
         _gridLayoutGroup.enabled = true;
         LayoutRebuilder.ForceRebuildLayoutImmediate(_gridLayoutGroup.transform as RectTransform);
-        StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
+        StartCoroutine(SelectShopCardNextFrame(_shopCards[0]));
     }
 
     public void Open()
     {
         gameObject.SetActive(true);
+        var items = EventBus.GetLatest<ShopItemUpdateEvent>();
+        HandleShopItemUpdate(items);
         Debug.Log(_shopCards.Count);
         if (_shopCards.Count > 0)
         {
-            StartCoroutine(SelectGameObjectNextFrame(_shopCards[0]));
+            StartCoroutine(SelectShopCardNextFrame(_shopCards[0]));
+        }
+        else
+        {
+            EventSystem.current.SetSelectedGameObject(_rerollButton.gameObject);
         }
     }
 
-    private IEnumerator SelectGameObjectNextFrame(ShopCard card)
+    private IEnumerator SelectShopCardNextFrame(ShopCard card)
     {
         yield return null;
         if (card != null)
@@ -126,7 +149,8 @@ public class ShopUI : MonoBehaviour
     {
         _rerollCostCache = rerollCost;
         _rerollButton.interactable = coins >= _rerollCostCache;
-        _rerollCostText.text = _rerollCostCache.ToString("N0");
+        var text = rerollCost <= 0  ? "FREE" : _rerollCostCache.ToString("N0");
+        _rerollCostText.text = text;
     }
 
     private void SyncCards(int coins)
